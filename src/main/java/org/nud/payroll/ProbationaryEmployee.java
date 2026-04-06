@@ -1,4 +1,4 @@
-package com.payroll;
+package org.nud.payroll;
 
 public class ProbationaryEmployee extends Employee {
     public ProbationaryEmployee(String id, String name, double rate, int cutOff) {

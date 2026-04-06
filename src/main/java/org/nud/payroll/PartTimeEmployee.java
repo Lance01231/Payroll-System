@@ -1,4 +1,4 @@
-package com.payroll;
+package org.nud.payroll;
 
 public class PartTimeEmployee extends Employee {
     public PartTimeEmployee(String id, String name, double rate, int cutOff) {

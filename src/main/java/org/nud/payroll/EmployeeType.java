@@ -1,4 +1,4 @@
-package com.payroll;
+package org.nud.payroll;
 
 public enum EmployeeType {
     REGULAR,

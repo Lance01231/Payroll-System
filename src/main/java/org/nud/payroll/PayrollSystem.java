@@ -1,4 +1,4 @@
-package com.payroll;
+package org.nud.payroll;
 
 import java.util.Scanner;
 
@@ -94,7 +94,7 @@ public class PayrollSystem {
         System.out.println("Employee Type   : " + emp.getTypeName());
         System.out.println("Basic Salary    : " + String.format("%.2f", emp.getBasicRate()) +
                           (emp instanceof PartTimeEmployee ? " (Hourly)" : " (Monthly)"));
-        System.out.println("Cut-off Period  : " + 
+        System.out.println("Cut-off Period  : " +
                           (emp.getCutOffPeriod() == 1 ? "1st-15th" : "16th-30th") + " of the month");
 
         System.out.println("\nTotal Hours:");

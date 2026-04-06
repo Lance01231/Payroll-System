@@ -1,4 +1,4 @@
-package com.payroll;
+package org.nud.payroll;
 
 public class ContractualEmployee extends Employee {
     public ContractualEmployee(String id, String name, double rate, int cutOff) {

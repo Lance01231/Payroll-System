@@ -1,4 +1,4 @@
-package com.payroll;
+package org.nud.payroll;
 
 public abstract class Employee {
     private final String employeeNumber;

@@ -1,7 +1,7 @@
-package com.payroll;
+package org.nud.payroll;
 
 public class EmployeeFactory {
-    public static Employee createEmployee(EmployeeType type, String id, String name, 
+    public static Employee createEmployee(EmployeeType type, String id, String name,
                                           double basicRate, int cutOffPeriod) {
         return switch (type) {
             case REGULAR -> new RegularEmployee(id, name, basicRate, cutOffPeriod);

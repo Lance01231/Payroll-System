@@ -1,4 +1,4 @@
-package com.payroll;
+package org.nud.payroll;
 
 public class PayrollCalculator {
     public static double calculateNetPay(Employee emp, double leaveDaysUsed, double loans) {
