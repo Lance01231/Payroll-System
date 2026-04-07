@@ -4,10 +4,17 @@ A simple cli app for computing employee payroll based on employee type, timekeep
 - Java 21
 - Maven 3.x
 
-## Run
+## Running the project
 ```bash
-git clone https://github.com/jrsm-dev/Payroll-System.git
+# clone the project
+git clone https://github.com/jrsm-dev/Payroll-System
 cd Payroll-System
+
+# compile
 mvn compile
-mvn exec:java -Dexec.mainClass="org.nud.payroll.PayrollSystem"
+
+# run with:
+mvn -q exec:java -Dexec.mainClass=org.nud.payroll.PayrollSystem
+# or
+java -cp target/classes org.nud.payroll.PayrollSystem
 ```
