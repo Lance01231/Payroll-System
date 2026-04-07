@@ -1,0 +1,5 @@
+pre-commit:
+  commands:
+    spotless-format:
+      glob: "*.java"
+      run: mvn spotless:apply && git add -u
