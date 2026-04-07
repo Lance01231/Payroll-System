@@ -6,8 +6,12 @@ public class RegularEmployee extends Employee {
     }
 
     @Override
-    public boolean hasLeaveBenefits() { return true; }
+    public boolean hasLeaveBenefits() {
+        return true;
+    }
 
     @Override
-    public String getTypeName() { return "Regular"; }
+    public String getTypeName() {
+        return "Regular";
+    }
 }

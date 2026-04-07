@@ -22,16 +22,17 @@ public class PayrollSystem {
             System.out.print("Enter choice: ");
             char typeChoice = sc.nextLine().toUpperCase().charAt(0);
 
-            EmployeeType empType = switch (typeChoice) {
-                case 'R' -> EmployeeType.REGULAR;
-                case 'P' -> EmployeeType.PROBATIONARY;
-                case 'C' -> EmployeeType.CONTRACTUAL;
-                case 'T' -> EmployeeType.PARTTIME;
-                default -> {
-                    System.out.println("Invalid type! Defaulting to Contractual.");
-                    yield EmployeeType.CONTRACTUAL;
-                }
-            };
+            EmployeeType empType =
+                    switch (typeChoice) {
+                        case 'R' -> EmployeeType.REGULAR;
+                        case 'P' -> EmployeeType.PROBATIONARY;
+                        case 'C' -> EmployeeType.CONTRACTUAL;
+                        case 'T' -> EmployeeType.PARTTIME;
+                        default -> {
+                            System.out.println("Invalid type! Defaulting to Contractual.");
+                            yield EmployeeType.CONTRACTUAL;
+                        }
+                    };
 
             System.out.print("\nBasic Salary (Monthly / Hourly for Part-time): ");
             double basicRate = sc.nextDouble();
@@ -92,10 +93,10 @@ public class PayrollSystem {
         System.out.println("Employee ID     : " + emp.getEmployeeNumber());
         System.out.println("Employee Name   : " + emp.getEmployeeName());
         System.out.println("Employee Type   : " + emp.getTypeName());
-        System.out.println("Basic Salary    : " + String.format("%.2f", emp.getBasicRate()) +
-                          (emp instanceof PartTimeEmployee ? " (Hourly)" : " (Monthly)"));
-        System.out.println("Cut-off Period  : " +
-                          (emp.getCutOffPeriod() == 1 ? "1st-15th" : "16th-30th") + " of the month");
+        System.out.println("Basic Salary    : " + String.format("%.2f", emp.getBasicRate())
+                + (emp instanceof PartTimeEmployee ? " (Hourly)" : " (Monthly)"));
+        System.out.println(
+                "Cut-off Period  : " + (emp.getCutOffPeriod() == 1 ? "1st-15th" : "16th-30th") + " of the month");
 
         System.out.println("\nTotal Hours:");
         System.out.printf("Worked                     : %.2f%n", emp.getWorkedHours());

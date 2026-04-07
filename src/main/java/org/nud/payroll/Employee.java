@@ -30,7 +30,9 @@ public abstract class Employee {
 
             if (tin > 0 && tout > tin) {
                 double dailyHours = tout - tin - 1.0; // 1-hour break
-                if (dailyHours < 0) dailyHours = 0.0;
+                if (dailyHours < 0) {
+                    dailyHours = 0.0;
+                }
 
                 workedHours += dailyHours;
 
@@ -46,6 +48,7 @@ public abstract class Employee {
     }
 
     public abstract boolean hasLeaveBenefits();
+
     public abstract String getTypeName();
 
     public double calculateGrossPay() {
@@ -86,18 +89,45 @@ public abstract class Employee {
     }
 
     public double getWithholdingTax(double grossForCutoff) {
-        if (grossForCutoff <= 10000) return 0.0;
-        else if (grossForCutoff <= 20000) return (grossForCutoff - 10000) * 0.10;
-        else return 1000 + (grossForCutoff - 20000) * 0.15;
+        if (grossForCutoff <= 10000) {
+            return 0.0;
+        } else if (grossForCutoff <= 20000) {
+            return (grossForCutoff - 10000) * 0.10;
+        } else {
+            return 1000 + (grossForCutoff - 20000) * 0.15;
+        }
     }
 
     // Getters
-    public String getEmployeeNumber() { return employeeNumber; }
-    public String getEmployeeName() { return employeeName; }
-    public double getBasicRate() { return basicRate; }
-    public int getCutOffPeriod() { return cutOffPeriod; }
-    public double getWorkedHours() { return workedHours; }
-    public double getOtHours() { return otHours; }
-    public double getAbsentDays() { return absentDays; }
-    public double getUndertimeHours() { return undertimeHours; }
+    public String getEmployeeNumber() {
+        return employeeNumber;
+    }
+
+    public String getEmployeeName() {
+        return employeeName;
+    }
+
+    public double getBasicRate() {
+        return basicRate;
+    }
+
+    public int getCutOffPeriod() {
+        return cutOffPeriod;
+    }
+
+    public double getWorkedHours() {
+        return workedHours;
+    }
+
+    public double getOtHours() {
+        return otHours;
+    }
+
+    public double getAbsentDays() {
+        return absentDays;
+    }
+
+    public double getUndertimeHours() {
+        return undertimeHours;
+    }
 }

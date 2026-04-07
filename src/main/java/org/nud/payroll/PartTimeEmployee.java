@@ -6,10 +6,14 @@ public class PartTimeEmployee extends Employee {
     }
 
     @Override
-    public boolean hasLeaveBenefits() { return false; }
+    public boolean hasLeaveBenefits() {
+        return false;
+    }
 
     @Override
-    public String getTypeName() { return "Part-time"; }
+    public String getTypeName() {
+        return "Part-time";
+    }
 
     @Override
     public double calculateGrossPay() {
@@ -29,9 +33,17 @@ public class PartTimeEmployee extends Employee {
     }
 
     @Override
-    public double getSSSContribution() { return 0.0; }
+    public double getSSSContribution() {
+        return 0.0;
+    }
+
     @Override
-    public double getPhilhealthContribution() { return 0.0; }
+    public double getPhilhealthContribution() {
+        return 0.0;
+    }
+
     @Override
-    public double getPagibigContribution() { return 0.0; }
+    public double getPagibigContribution() {
+        return 0.0;
+    }
 }
