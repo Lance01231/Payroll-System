@@ -110,7 +110,7 @@ public class PayrollSystem {
 
         System.out.println("Employee ID     : " + emp.getEmployeeNumber());
         System.out.println("Employee Name   : " + emp.getEmployeeName());
-        System.out.println("Employee Type   : " + emp.getTypeName());
+        System.out.println("Employee Type   : " + emp.getEmployeeType());
         System.out.println("Basic Salary    : " + String.format("%.2f", emp.getBasicRate())
                 + (emp instanceof PartTimeEmployee ? " (Hourly)" : " (Monthly)"));
         System.out.println(
@@ -120,7 +120,7 @@ public class PayrollSystem {
         System.out.printf("Worked                     : %.2f%n", emp.getWorkedHours());
         System.out.printf("Absent                     : %.2f days%n", emp.getAbsentDays());
         System.out.printf("Undertime                  : %.2f hours%n", emp.getUndertimeHours());
-        System.out.printf("Overtime                   : %.2f%n", emp.getOtHours());
+        System.out.printf("Overtime                   : %.2f%n", emp.getOvertimeHours());
 
         System.out.println("\nBasic Salary: " + String.format("%.2f", emp.getBasicRate()));
         System.out.println("Additional:");

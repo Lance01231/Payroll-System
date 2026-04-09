@@ -6,20 +6,20 @@ public class PartTimeEmployee extends Employee {
     }
 
     @Override
+    public String getEmployeeType() {
+        return "Part-time";
+    }
+
+    @Override
     public boolean hasLeaveBenefits() {
         return false;
     }
 
     @Override
-    public String getTypeName() {
-        return "Part-time";
-    }
-
-    @Override
     public double calculateGrossPay() {
         double hourlyRate = getBasicRate();
-        double otPay = getOtHours() * hourlyRate * 1.25;
-        return getWorkedHours() * hourlyRate + otPay;
+        double overtimePay = getOvertimeHours() * hourlyRate * 1.25;
+        return getWorkedHours() * hourlyRate + overtimePay;
     }
 
     @Override

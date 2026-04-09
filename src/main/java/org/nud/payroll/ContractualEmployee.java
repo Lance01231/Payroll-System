@@ -6,12 +6,12 @@ public class ContractualEmployee extends Employee {
     }
 
     @Override
-    public boolean hasLeaveBenefits() {
-        return false;
+    public String getEmployeeType() {
+        return "Contractual";
     }
 
     @Override
-    public String getTypeName() {
-        return "Contractual";
+    public boolean hasLeaveBenefits() {
+        return false;
     }
 }

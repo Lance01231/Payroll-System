@@ -6,12 +6,12 @@ public class ProbationaryEmployee extends Employee {
     }
 
     @Override
-    public boolean hasLeaveBenefits() {
-        return true;
+    public String getEmployeeType() {
+        return "Probationary";
     }
 
     @Override
-    public String getTypeName() {
-        return "Probationary";
+    public boolean hasLeaveBenefits() {
+        return true;
     }
 }
