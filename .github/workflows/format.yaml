@@ -1,4 +1,4 @@
-name: Auto-format
+name: Maven Format Pipeline
 
 on:
   pull_request:
