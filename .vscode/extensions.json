@@ -1,0 +1,9 @@
+{
+  "recommendations": [
+    "redhat.java",
+    "vscjava.vscode-maven",
+    "usernamehw.errorlens",
+    "eamodio.gitlens",
+    "streetsidesoftware.code-spell-checker"
+  ]
+}
