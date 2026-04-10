@@ -2,8 +2,10 @@
   "recommendations": [
     "redhat.java",
     "vscjava.vscode-maven",
-    "usernamehw.errorlens",
     "eamodio.gitlens",
-    "streetsidesoftware.code-spell-checker"
+    "usernamehw.errorlens",
+    "aaron-bond.better-comments",
+    "streetsidesoftware.code-spell-checker",
+    "vscodevim.vim"
   ]
 }

@@ -2,6 +2,10 @@ package org.nud.payroll;
 
 import java.util.Scanner;
 
+/**
+ * Main entry point: Handles user input, employee creation, and payroll slip display
+ * All computation logic is delegated to the Employee class hierarchy
+ */
 public class PayrollSystem {
     // private static final String BLUE = "\u001B[94m";
     // private static final String GREEN = "\u001B[92m";
@@ -98,6 +102,7 @@ public class PayrollSystem {
         }
     }
 
+    // whole numbers without decimals, otherwise 2 decimal places
     private static String format(double amount) {
         return amount % 1 == 0 ? String.format("%.0f", amount) : String.format("%.2f", amount);
     }
