@@ -35,15 +35,6 @@ public class PayrollSystem {
             char typeChoice = InputValidator.validateChar(
                     sc, c -> c == 'R' || c == 'P' || c == 'C' || c == 'T', "Enter R, P, C, or T only!");
 
-            Employee emp = switch (typeChoice) {
-                case 'R' -> new RegularEmployee(id, name, basicRate, cutOff);
-                case 'P' -> new ProbationaryEmployee(id, name, basicRate, cutOff);
-                case 'C' -> new ContractualEmployee(id, name, basicRate, cutOff);
-                case 'T' -> new PartTimeEmployee(id, name, basicRate, cutOff);
-                // it should never reach this point
-                default -> throw new IllegalStateException("Unexpected value: " + typeChoice);
-            };
-
             System.out.print("\nBasic Salary (Monthly / Hourly for Part-time): ");
             double basicRate = InputValidator.validateDouble(
                     sc, salary -> InputValidator.isValidSalary(salary), "Salary must be between 500 and 500,000!");
@@ -54,6 +45,16 @@ public class PayrollSystem {
             System.out.print("Enter choice (1 or 2): ");
             int cutOff = InputValidator.validateInt(
                     sc, period -> InputValidator.isValidCutOff(period), "Must be 1 or 2 only!");
+
+            Employee emp =
+                    switch (typeChoice) {
+                        case 'R' -> new RegularEmployee(id, name, basicRate, cutOff);
+                        case 'P' -> new ProbationaryEmployee(id, name, basicRate, cutOff);
+                        case 'C' -> new ContractualEmployee(id, name, basicRate, cutOff);
+                        case 'T' -> new PartTimeEmployee(id, name, basicRate, cutOff);
+                        // it should never reach this point
+                        default -> throw new IllegalStateException("Unexpected value: " + typeChoice);
+                    };
 
             System.out.println("\nTimekeeping (15 days):");
             double[] timeIns = new double[15];
@@ -119,8 +120,9 @@ public class PayrollSystem {
 
         System.out.println("\nTotal Hours:");
         System.out.printf("Worked                     : %s%n", format(emp.getWorkedHours()));
-        System.out.printf("Absent                     : %s days%n", format(emp.getAbsentDays()));
-        System.out.printf("Undertime                  : %s hours%n", format(emp.getUndertimeHours()));
+        System.out.printf(
+                "Absent/Undertime           : %s days / %s hours%n",
+                format(emp.getAbsentDays()), format(emp.getUndertimeHours()));
         System.out.printf("Overtime                   : %s%n", format(emp.getOvertimeHours()));
 
         System.out.println("\nBasic Salary: " + format(emp.getBasicRate()));
@@ -131,9 +133,9 @@ public class PayrollSystem {
         System.out.printf("  Undertime/Late           : %s%n", format(emp.calculateUndertimeDeduction()));
         System.out.printf("  Absences                 : %s%n", format(emp.calculateAbsencesDeduction(leaveDaysUsed)));
         System.out.printf("  SSS                      : %s%n", format(emp.getSSSContribution()));
-        System.out.printf("  Philhealth               : %s%n", format(emp.getPhilhealthContribution()));
-        System.out.printf("  Pag-IBIG                 : %s%n", format(emp.getPagibigContribution()));
         System.out.printf("  W/Tax                    : %s%n", format(emp.getWithholdingTax(grossPay)));
+        System.out.printf("  Pag-IBIG                 : %s%n", format(emp.getPagibigContribution()));
+        System.out.printf("  PhilHealth               : %s%n", format(emp.getPhilhealthContribution()));
         System.out.printf("  Loans                    : %s%n", format(loans));
         System.out.println("========================================");
         System.out.printf("Net Pay                    : %s%n", format(netPay));

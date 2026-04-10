@@ -5,10 +5,10 @@ public abstract class Employee {
     private final String employeeNumber;
     private final double basicRate;
     private final int cutOffPeriod;
-    protected double workedHours;
-    protected double overtimeHours;
-    protected double undertimeHours;
-    protected double absentDays;
+    private double workedHours;
+    private double overtimeHours;
+    private double undertimeHours;
+    private double absentDays;
 
     public Employee(String employeeNumber, String employeeName, double basicRate, int cutOffPeriod) {
         this.employeeName = employeeName;
