@@ -120,9 +120,11 @@ public class PayrollSystem {
 
         System.out.println("\nTotal Hours:");
         System.out.printf("Worked                     : %s%n", format(emp.getWorkedHours()));
+        // System.out.printf(
+        //         "Absent/Undertime           : %s days / %s hours%n",
+        //         format(emp.getAbsentDays()), format(emp.getUndertimeHours()));
         System.out.printf(
-                "Absent/Undertime           : %s days / %s hours%n",
-                format(emp.getAbsentDays()), format(emp.getUndertimeHours()));
+                "Absent/Undertime           : %s%n", format(emp.getAbsentDays() * 8.0 + emp.getUndertimeHours()));
         System.out.printf("Overtime                   : %s%n", format(emp.getOvertimeHours()));
 
         System.out.println("\nBasic Salary: " + format(emp.getBasicRate()));

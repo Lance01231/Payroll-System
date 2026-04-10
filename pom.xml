@@ -13,12 +13,13 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 
-        <maven.compiler.plugin.version>3.15.0</maven.compiler.plugin.version>
-        <spotless.plugin.version>3.4.0</spotless.plugin.version>
+        <maven.compiler.version>3.15.0</maven.compiler.version>
+        <exec.maven.version>3.5.0</exec.maven.version>
+        <spotless.version>3.4.0</spotless.version>
         <palantir.java.format.version>2.90.0</palantir.java.format.version>
         <google.java.format.version>1.25.2</google.java.format.version>
-        <spotbugs.plugin.version>4.9.8.3</spotbugs.plugin.version>
-        <checkstyle.plugin.version>3.6.0</checkstyle.plugin.version>
+        <spotbugs.version>4.9.8.3</spotbugs.version>
+        <checkstyle.maven.version>3.6.0</checkstyle.maven.version>
         <checkstyle.version>13.4.0</checkstyle.version>
     </properties>
 
@@ -26,16 +27,25 @@
         <plugins>
             <plugin>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <version>${maven.compiler.plugin.version}</version>
+                <version>${maven.compiler.version}</version>
                 <configuration>
                     <release>${maven.compiler.release}</release>
                 </configuration>
             </plugin>
 
             <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>exec-maven-plugin</artifactId>
+                <version>${exec.maven.version}</version>
+                <configuration>
+                    <mainClass>org.nud.payroll.PayrollSystem</mainClass>
+                </configuration>
+            </plugin>
+
+            <plugin>
                 <groupId>com.diffplug.spotless</groupId>
                 <artifactId>spotless-maven-plugin</artifactId>
-                <version>${spotless.plugin.version}</version>
+                <version>${spotless.version}</version>
                 <configuration>
                     <java>
                         <palantirJavaFormat>
@@ -65,7 +75,7 @@
             <plugin>
                 <groupId>com.github.spotbugs</groupId>
                 <artifactId>spotbugs-maven-plugin</artifactId>
-                <version>${spotbugs.plugin.version}</version>
+                <version>${spotbugs.version}</version>
                 <configuration>
                     <effort>Max</effort>
                     <threshold>Low</threshold>
@@ -85,7 +95,7 @@
 
             <plugin>
                 <artifactId>maven-checkstyle-plugin</artifactId>
-                <version>${checkstyle.plugin.version}</version>
+                <version>${checkstyle.maven.version}</version>
                 <dependencies>
                     <dependency>
                         <groupId>com.puppycrawl.tools</groupId>

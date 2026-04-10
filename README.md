@@ -14,7 +14,7 @@ cd Payroll-System
 mvn compile
 
 # run with:
-mvn -q exec:java -Dexec.mainClass=org.nud.payroll.PayrollSystem
+mvn -q exec:java
 # or
 java -cp target/classes org.nud.payroll.PayrollSystem
 ```
