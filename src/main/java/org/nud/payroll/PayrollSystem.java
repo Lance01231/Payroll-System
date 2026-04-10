@@ -3,6 +3,12 @@ package org.nud.payroll;
 import java.util.Scanner;
 
 public class PayrollSystem {
+    // private static final String BLUE = "\u001B[94m";
+    // private static final String GREEN = "\u001B[92m";
+    // private static final String YELLOW = "\u001B[93m";
+    // private static final String RED = "\u001B[91m";
+    // private static final String RESET = "\u001B[0m";
+
     public static void main(String[] args) {
         try (Scanner sc = new Scanner(System.in)) {
             System.out.println("ABC Company");
@@ -10,12 +16,14 @@ public class PayrollSystem {
 
             System.out.print("Employee ID: ");
             String id = InputValidator.validateInput(
-                    sc, InputValidator::isValidEmployeeId, "ID must be 3-10 alphanumeric characters!");
+                    sc,
+                    employeeId -> InputValidator.isValidEmployeeId(employeeId),
+                    "ID must be 3-10 alphanumeric characters!");
 
             System.out.print("Employee Name: ");
             String name = InputValidator.validateInput(
                     sc,
-                    InputValidator::isValidName,
+                    employeeName -> InputValidator.isValidName(employeeName),
                     "Name must be 6-50 letters only! (spaces, hyphens, apostrophes are allowed).");
 
             System.out.println("\nEmployee Type:");
@@ -33,35 +41,35 @@ public class PayrollSystem {
                         case 'P' -> EmployeeType.PROBATIONARY;
                         case 'C' -> EmployeeType.CONTRACTUAL;
                         case 'T' -> EmployeeType.PARTTIME;
-                        // it should never reach this point lol
+                        // it should never reach this point
                         default -> throw new IllegalStateException("Unexpected value: " + typeChoice);
                     };
 
             System.out.print("\nBasic Salary (Monthly / Hourly for Part-time): ");
             double basicRate = InputValidator.validateDouble(
-                    sc, InputValidator::isValidSalary, "Salary must be between 500 and 500,000!");
+                    sc, salary -> InputValidator.isValidSalary(salary), "Salary must be between 500 and 500,000!");
 
             System.out.println("\nCut-off Period:");
             System.out.println("1 - 1st-15th of the month");
             System.out.println("2 - 16th-30th of the month");
             System.out.print("Enter choice (1 or 2): ");
-            int cutOff = InputValidator.validateInt(sc, InputValidator::isValidCutOff, "Must be 1 or 2 only!");
+            int cutOff = InputValidator.validateInt(
+                    sc, period -> InputValidator.isValidCutOff(period), "Must be 1 or 2 only!");
 
             System.out.println("\nTimekeeping (15 days):");
             double[] timeIns = new double[15];
             double[] timeOuts = new double[15];
 
-            // custom validation loop for paired time in/out values
+            // custom validation for paired time in/out
             for (int day = 1; day <= 15; day++) {
                 double timeIn;
                 double timeOut;
                 for (;;) {
-                    System.out.print(day + " Time In  (e.g. 8 or 0 if absent): ");
-                    timeIn = InputValidator.validateDouble(
-                            sc, InputValidator::isValidTime, "Time must be between 0 and 24!");
-                    System.out.print("   Time Out (e.g. 17 or 0 if absent): ");
-                    timeOut = InputValidator.validateDouble(
-                            sc, InputValidator::isValidTime, "Time must be between 0 and 24!");
+                    System.out.print(day + " Time In  (e.g. 8, 11:45am): ");
+                    timeIn = InputValidator.isValidTime(sc, 0.0, "Enter valid time (e.g. 8, 8:00am) or 'absent'.");
+                    System.out.print("   Time Out (e.g. 17, 5pm): ");
+                    timeOut =
+                            InputValidator.isValidTime(sc, 0.0, "Enter valid time (e.g. 17, 5pm, 9:30pm) or 'absent'.");
 
                     if (InputValidator.isValidTimePair(timeIn, timeOut)) {
                         break;
@@ -79,12 +87,12 @@ public class PayrollSystem {
             if (emp.hasLeaveBenefits()) {
                 System.out.print("\nNumber of leave days used: ");
                 leaveDaysUsed = InputValidator.validateDouble(
-                        sc, InputValidator::isValidLeaveDays, "Leave days must be between 0 and 15!");
+                        sc, days -> InputValidator.isValidLeaveDays(days), "Leave days must be between 0 and 15!");
             }
 
             System.out.print("Loans: ");
             double loans = InputValidator.validateDouble(
-                    sc, InputValidator::isValidLoans, "Loans must be between 0 and 100,000!");
+                    sc, loanAmount -> InputValidator.isValidLoans(loanAmount), "Loans must be between 0 and 100,000!");
 
             double netPay = PayrollCalculator.calculateNetPay(emp, leaveDaysUsed, loans);
 

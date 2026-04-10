@@ -10,4 +10,9 @@
         <Method name="main" />
         <Bug pattern="DM_CONVERT_CASE" />
     </Match>
+    <Match>
+        <Class name="org.nud.payroll.InputValidator" />
+        <Method name="isValidTime" />
+        <Bug pattern="DM_CONVERT_CASE" />
+    </Match>
 </FindBugsFilter>

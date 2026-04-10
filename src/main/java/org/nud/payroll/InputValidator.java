@@ -64,6 +64,45 @@ public class InputValidator {
         return loans >= 0.0 && loans <= MAX_LOANS;
     }
 
+    // a helper method to translate friendly format to 24h format
+    public static double isValidTime(Scanner sc, double defaultValue, String errorMsg) {
+        for (;;) {
+            String input = sc.nextLine().trim();
+            String normalized = input.toLowerCase().replace(" ", "");
+
+            // if the user sends empty or pressed "enter", use the default value which is "absent"
+            if (input.isEmpty()) {
+                return defaultValue;
+            }
+
+            // self explanatory
+            if (normalized.equals("absent") || normalized.equals("a")) {
+                return 0.0;
+            }
+
+            // still accept 24h format for compat
+            if (normalized.matches("^\\d+(\\.\\d+)?$")) {
+                double value = Double.parseDouble(normalized);
+                if (value >= 0.0 && value <= 24.0) {
+                    return value;
+                }
+                // regex pattern for accepting 12 hour format with minutes (e.g. 12:45am, 12pm)
+            } else if (normalized.matches("^(1[0-2]|0?[1-9])(:[0-5][0-9])?(am|pm)$")) {
+                int suffixIndex = normalized.length() - 2;
+                int colonIndex = normalized.indexOf(':');
+                int hour = Integer.parseInt(normalized.substring(0, colonIndex >= 0 ? colonIndex : suffixIndex));
+                int minute = colonIndex >= 0 ? Integer.parseInt(normalized.substring(colonIndex + 1, suffixIndex)) : 0;
+                boolean isPm = normalized.endsWith("pm");
+                // 12am maps to 00:mm, 12pm maps to 12:mm.
+                hour = (hour % 12) + (isPm ? 12 : 0);
+                return hour + (minute / 60.0);
+            }
+
+            System.out.println(errorMsg);
+            System.out.print("> ");
+        }
+    }
+
     // repeatedly ask the user until valid string input is provided :)
     public static String validateInput(Scanner sc, Predicate<String> validator, String errorMsg) {
         String input;
@@ -79,16 +118,18 @@ public class InputValidator {
 
     public static double validateDouble(Scanner sc, DoublePredicate validator, String errorMsg) {
         for (;;) {
-            if (sc.hasNextDouble()) {
+            if (sc.hasNextDouble()) { // validate first if the input is actually a double
                 double input = sc.nextDouble();
                 sc.nextLine();
+                // then verify it against isValid* methods (defined on the top) the caller gave
                 if (validator.test(input)) {
                     return input;
                 }
+                // it is a double but failed the specified validation rule
                 System.out.println(errorMsg);
             } else {
                 System.out.println("Please enter a valid number.");
-                sc.nextLine();
+                sc.nextLine(); // discard the invalid datatype to ask again
             }
             System.out.print("> ");
         }
