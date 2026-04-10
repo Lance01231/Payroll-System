@@ -16,6 +16,7 @@
   "[java]": {
     "editor.formatOnSave": true,
     "editor.formatOnPaste": true,
+    "editor.insertSpaces": true,
     "editor.suggestSelection": "first",
     "editor.defaultFormatter": "redhat.java",
     "editor.codeActionsOnSave": { "source.organizeImports": "explicit" }

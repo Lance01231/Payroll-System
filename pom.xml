@@ -41,6 +41,11 @@
                         <palantirJavaFormat>
                             <version>${palantir.java.format.version}</version>
                         </palantirJavaFormat>
+                        <replaceRegex>
+                            <name>for-loop preference</name>
+                            <searchRegex>for \(\s*;\s*;\s*\)</searchRegex>
+                            <replacement>for (;;)</replacement>
+                        </replaceRegex>
                         <removeUnusedImports />
                         <trimTrailingWhitespace />
                         <endWithNewline />

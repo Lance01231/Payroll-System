@@ -67,7 +67,7 @@ public class InputValidator {
     // repeatedly ask the user until valid string input is provided :)
     public static String validateInput(Scanner sc, Predicate<String> validator, String errorMsg) {
         String input;
-        for (; ; ) {
+        for (;;) {
             input = sc.nextLine().trim();
             if (validator.test(input)) {
                 return input;
@@ -78,7 +78,7 @@ public class InputValidator {
     }
 
     public static double validateDouble(Scanner sc, DoublePredicate validator, String errorMsg) {
-        for (; ; ) {
+        for (;;) {
             if (sc.hasNextDouble()) {
                 double input = sc.nextDouble();
                 sc.nextLine();
@@ -95,7 +95,7 @@ public class InputValidator {
     }
 
     public static int validateInt(Scanner sc, IntPredicate validator, String errorMsg) {
-        for (; ; ) {
+        for (;;) {
             if (sc.hasNextInt()) {
                 int input = sc.nextInt();
                 sc.nextLine();
@@ -112,7 +112,7 @@ public class InputValidator {
     }
 
     public static char validateChar(Scanner sc, IntPredicate validator, String errorMsg) {
-        for (; ; ) {
+        for (;;) {
             String input = sc.nextLine().trim();
             if (!input.isEmpty()) {
                 char c = Character.toUpperCase(input.charAt(0));

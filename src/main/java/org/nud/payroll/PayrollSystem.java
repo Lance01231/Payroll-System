@@ -55,7 +55,7 @@ public class PayrollSystem {
             for (int day = 1; day <= 15; day++) {
                 double timeIn;
                 double timeOut;
-                for (; ; ) {
+                for (;;) {
                     System.out.print(day + " Time In  (e.g. 8 or 0 if absent): ");
                     timeIn = InputValidator.validateDouble(
                             sc, InputValidator::isValidTime, "Time must be between 0 and 24!");
