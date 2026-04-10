@@ -102,14 +102,12 @@ public class PayrollSystem {
         }
     }
 
+    private static String format(double amount) {
+        return amount % 1 == 0 ? String.format("%.0f", amount) : String.format("%.2f", amount);
+    }
+
     private static void printPayrollSlip(Employee emp, double leaveDaysUsed, double loans, double netPay) {
         double grossPay = emp.calculateGrossPay();
-        double absencesDed = emp.calculateAbsencesDeduction(leaveDaysUsed);
-        double undertimeDed = emp.calculateUndertimeDeduction();
-        double sss = emp.getSSSContribution();
-        double philhealth = emp.getPhilhealthContribution();
-        double pagibig = emp.getPagibigContribution();
-        double tax = emp.getWithholdingTax(grossPay);
 
         System.out.println("\n========================================");
         System.out.println("ABC Company");
@@ -119,31 +117,31 @@ public class PayrollSystem {
         System.out.println("Employee ID     : " + emp.getEmployeeNumber());
         System.out.println("Employee Name   : " + emp.getEmployeeName());
         System.out.println("Employee Type   : " + emp.getEmployeeType());
-        System.out.println("Basic Salary    : " + String.format("%.2f", emp.getBasicRate())
+        System.out.println("Basic Salary    : " + format(emp.getBasicRate())
                 + (emp instanceof PartTimeEmployee ? " (Hourly)" : " (Monthly)"));
         System.out.println(
                 "Cut-off Period  : " + (emp.getCutOffPeriod() == 1 ? "1st-15th" : "16th-30th") + " of the month");
 
         System.out.println("\nTotal Hours:");
-        System.out.printf("Worked                     : %.2f%n", emp.getWorkedHours());
-        System.out.printf("Absent                     : %.2f days%n", emp.getAbsentDays());
-        System.out.printf("Undertime                  : %.2f hours%n", emp.getUndertimeHours());
-        System.out.printf("Overtime                   : %.2f%n", emp.getOvertimeHours());
+        System.out.printf("Worked                     : %s%n", format(emp.getWorkedHours()));
+        System.out.printf("Absent                     : %s days%n", format(emp.getAbsentDays()));
+        System.out.printf("Undertime                  : %s hours%n", format(emp.getUndertimeHours()));
+        System.out.printf("Overtime                   : %s%n", format(emp.getOvertimeHours()));
 
-        System.out.println("\nBasic Salary: " + String.format("%.2f", emp.getBasicRate()));
+        System.out.println("\nBasic Salary: " + format(emp.getBasicRate()));
         System.out.println("Additional:");
-        System.out.printf("  Overtime                 : %.2f%n", grossPay - (emp.getBasicRate() / 2.0));
+        System.out.printf("  Overtime                 : %s%n", format(grossPay - (emp.getBasicRate() / 2.0)));
 
         System.out.println("\nDeductions:");
-        System.out.printf("  Undertime/Late           : %.2f%n", undertimeDed);
-        System.out.printf("  Absences                 : %.2f%n", absencesDed);
-        System.out.printf("  SSS                      : %.2f%n", sss);
-        System.out.printf("  Philhealth               : %.2f%n", philhealth);
-        System.out.printf("  Pag-IBIG                 : %.2f%n", pagibig);
-        System.out.printf("  W/Tax                    : %.2f%n", tax);
-        System.out.printf("  Loans                    : %.2f%n", loans);
+        System.out.printf("  Undertime/Late           : %s%n", format(emp.calculateUndertimeDeduction()));
+        System.out.printf("  Absences                 : %s%n", format(emp.calculateAbsencesDeduction(leaveDaysUsed)));
+        System.out.printf("  SSS                      : %s%n", format(emp.getSSSContribution()));
+        System.out.printf("  Philhealth               : %s%n", format(emp.getPhilhealthContribution()));
+        System.out.printf("  Pag-IBIG                 : %s%n", format(emp.getPagibigContribution()));
+        System.out.printf("  W/Tax                    : %s%n", format(emp.getWithholdingTax(grossPay)));
+        System.out.printf("  Loans                    : %s%n", format(loans));
         System.out.println("========================================");
-        System.out.printf("Net Pay                    : %.2f%n", netPay);
+        System.out.printf("Net Pay                    : %s%n", format(netPay));
         System.out.println("========================================");
     }
 }
