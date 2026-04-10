@@ -118,18 +118,23 @@ public class InputValidator {
 
     public static double validateDouble(Scanner sc, DoublePredicate validator, String errorMsg) {
         for (;;) {
-            if (sc.hasNextDouble()) { // validate first if the input is actually a double
-                double input = sc.nextDouble();
-                sc.nextLine();
+            String line = sc.nextLine().trim();
+            if (line.isEmpty()) {
+                System.out.println(errorMsg);
+                System.out.print("> ");
+                continue;
+            }
+            try {
+                // validate first if the input is actually a double
+                double input = Double.parseDouble(line);
                 // then verify it against isValid* methods (defined on the top) the caller gave
                 if (validator.test(input)) {
                     return input;
                 }
                 // it is a double but failed the specified validation rule
                 System.out.println(errorMsg);
-            } else {
+            } catch (NumberFormatException e) {
                 System.out.println("Please enter a valid number.");
-                sc.nextLine(); // discard the invalid datatype to ask again
             }
             System.out.print("> ");
         }
@@ -137,16 +142,20 @@ public class InputValidator {
 
     public static int validateInt(Scanner sc, IntPredicate validator, String errorMsg) {
         for (;;) {
-            if (sc.hasNextInt()) {
-                int input = sc.nextInt();
-                sc.nextLine();
+            String line = sc.nextLine().trim();
+            if (line.isEmpty()) {
+                System.out.println(errorMsg);
+                System.out.print("> ");
+                continue;
+            }
+            try {
+                int input = Integer.parseInt(line);
                 if (validator.test(input)) {
                     return input;
                 }
                 System.out.println(errorMsg);
-            } else {
+            } catch (NumberFormatException e) {
                 System.out.println("Please enter a valid WHOLE number.");
-                sc.nextLine();
             }
             System.out.print("> ");
         }
