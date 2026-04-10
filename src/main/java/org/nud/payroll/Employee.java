@@ -50,6 +50,20 @@ public abstract class Employee {
         }
     }
 
+    public double calculateNetPay(double leaveDaysUsed, double loans) {
+        double grossPay = calculateGrossPay();
+        double absencesDed = calculateAbsencesDeduction(leaveDaysUsed);
+        double undertimeDed = calculateUndertimeDeduction();
+
+        double sss = getSSSContribution();
+        double philhealth = getPhilhealthContribution();
+        double pagibig = getPagibigContribution();
+        double tax = getWithholdingTax(grossPay);
+
+        double totalDeductions = absencesDed + undertimeDed + sss + philhealth + pagibig + tax + loans;
+        return grossPay - totalDeductions;
+    }
+
     public double calculateGrossPay() {
         double basicCutoff = basicRate / 2.0;
         double hourlyRate = getHourlyRate();

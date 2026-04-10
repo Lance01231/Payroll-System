@@ -94,7 +94,7 @@ public class PayrollSystem {
             double loans = InputValidator.validateDouble(
                     sc, loanAmount -> InputValidator.isValidLoans(loanAmount), "Loans must be between 0 and 100,000!");
 
-            double netPay = PayrollCalculator.calculateNetPay(emp, leaveDaysUsed, loans);
+            double netPay = emp.calculateNetPay(leaveDaysUsed, loans);
 
             printPayrollSlip(emp, leaveDaysUsed, loans, netPay);
 
