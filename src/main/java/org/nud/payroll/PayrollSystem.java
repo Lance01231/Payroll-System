@@ -35,15 +35,14 @@ public class PayrollSystem {
             char typeChoice = InputValidator.validateChar(
                     sc, c -> c == 'R' || c == 'P' || c == 'C' || c == 'T', "Enter R, P, C, or T only!");
 
-            EmployeeType empType =
-                    switch (typeChoice) {
-                        case 'R' -> EmployeeType.REGULAR;
-                        case 'P' -> EmployeeType.PROBATIONARY;
-                        case 'C' -> EmployeeType.CONTRACTUAL;
-                        case 'T' -> EmployeeType.PARTTIME;
-                        // it should never reach this point
-                        default -> throw new IllegalStateException("Unexpected value: " + typeChoice);
-                    };
+            Employee emp = switch (typeChoice) {
+                case 'R' -> new RegularEmployee(id, name, basicRate, cutOff);
+                case 'P' -> new ProbationaryEmployee(id, name, basicRate, cutOff);
+                case 'C' -> new ContractualEmployee(id, name, basicRate, cutOff);
+                case 'T' -> new PartTimeEmployee(id, name, basicRate, cutOff);
+                // it should never reach this point
+                default -> throw new IllegalStateException("Unexpected value: " + typeChoice);
+            };
 
             System.out.print("\nBasic Salary (Monthly / Hourly for Part-time): ");
             double basicRate = InputValidator.validateDouble(
@@ -80,7 +79,6 @@ public class PayrollSystem {
                 timeOuts[day - 1] = timeOut;
             }
 
-            Employee emp = EmployeeFactory.createEmployee(empType, id, name, basicRate, cutOff);
             emp.setTimeKeeping(timeIns, timeOuts);
 
             double leaveDaysUsed = 0.0;
@@ -95,10 +93,7 @@ public class PayrollSystem {
                     sc, loanAmount -> InputValidator.isValidLoans(loanAmount), "Loans must be between 0 and 100,000!");
 
             double netPay = emp.calculateNetPay(leaveDaysUsed, loans);
-
             printPayrollSlip(emp, leaveDaysUsed, loans, netPay);
-
-            System.out.println("\nPayroll processing complete.");
         }
     }
 
