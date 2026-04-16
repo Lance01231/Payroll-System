@@ -199,12 +199,14 @@ public abstract class Employee {
     /**
      * Computes employee PhilHealth contribution
      *
-     * TODO: Replace with actual PhilHealth contribution table which has an income
-     * floor 10k and ceiling of 80k, and a 5% total rate split
-     * equally between employer and employee (2.5% each)
+     * MBS is floored at 10,000 and capped at 100,000
+     * 5% total rate on Monthly Basic Salary (MBS) and 50% employee share
+     *
+     * https://www.philhealth.gov.ph/advisories/2025/PA2025-0002.pdf
      */
     public double getPhilhealthContribution() {
-        return basicRate * 0.025;
+        double mbs = Math.max(10000.0, Math.min(100000.0, basicRate));
+        return mbs * 0.05 * 0.50;
     }
 
     /**
