@@ -172,11 +172,28 @@ public abstract class Employee {
     /**
      * Computes employee SSS contribution
      *
-     * TODO: Replace with actual SSS contribution table which uses monthly Salary
-     * Credit (MSC) brackets rather than a flat percentage
+     * Monthly Salary Credit (MSC) ranges from 5,000 to 35,000 in 500 increment bracket
+     * Employee share is 5% of the MSC, split into:
+     *   - Regular SS: 5% of MSC, capped at 20,000
+     *   - Mandatory Provident Fund (MPF): 5% of the MSC exceeding 20,000
+     *
+     * https://www.sss.gov.ph/wp-content/uploads/2024/12/CI-2024-006-Publication.pdf
      */
     public double getSSSContribution() {
-        return basicRate * 0.045;
+        double msc;
+        if (basicRate < 5000) { // minimum floor
+            msc = 5000;
+        } else if (basicRate > 35000) { // maximum ceiling
+            msc = 35000;
+        } else {
+            // bracket move in 500 increment, this formula finds the nearest bracket
+            msc = Math.floor((basicRate - 250) / 500) * 500 + 500;
+        }
+
+        // calculate Regular SS (capped at MSC 20,000) + MPF (excess above 20,000)
+        double regularSS = Math.min(msc, 20000) * 0.05; // capped at 20,000
+        double mpf = Math.max(0, msc - 20000) * 0.05; // 5% of excess
+        return regularSS + mpf;
     }
 
     /**
