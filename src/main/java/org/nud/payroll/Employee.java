@@ -95,7 +95,8 @@ public abstract class Employee {
     public double calculateGrossPay() {
         double basicCutoff = basicRate / 2.0; // semi-monthly cutoff (2 pay periods per month)
         double hourlyRate = getHourlyRate();
-        double overtimePay = overtimeHours * hourlyRate * 1.25; // 25% OT (Labor Code Art. 87)
+        // Labor Code Art. 87 Overtime Work: https://library.laborlaw.ph/p-d-442-labor-code-book-3
+        double overtimePay = overtimeHours * hourlyRate * 1.25; // 25% OT
         return basicCutoff + overtimePay;
     }
 
@@ -126,27 +127,35 @@ public abstract class Employee {
 
     // converts daily rate to hourly rate
     protected double getHourlyRate() {
-        return getDailyRate() / 8.0; // based on 8h regular work (Labor Code Art. 83)
+        return getDailyRate() / 8.0; // 8h of work (Labor Code Art. 83)
     }
 
     /**
      * Computes employee withholding tax based on semi-monthly gross pay
      *
-     * Simplified progressive tax brackets:
-     *   - Up to 10,000:          exempt
-     *   - 10,001 - 20,000:       10% of amount over 10,000
-     *   - Over 20,000:           1,000 + 15% of amount over 20,000
+     *   Taxable Income Range | Rate |  Base Tax | Marginal Rate
+     *   <= 10,417            |  0%  |      0.00 | -
+     *   10,417 - 16,666      | 15%  |      0.00 | 10,417
+     *   16,667 - 33,332      | 20%  |    937.50 | 16,667
+     *   33,333 - 83,332      | 25%  |  4,270.70 | 33,333
+     *   83,333 - 333,332     | 30%  | 16,770.70 | 83,333
+     *   >= 333,333           | 35%  | 91,770.70 | 333,333
      *
-     * TODO: Replace with actual BIR TRAIN Law (RA 10963) withholding tax table(?)
-     * which has 8 brackets ranging from 0% to 35%, current implementation is simplified version
+     * https://hr-payroll.net/blogs/article/9-bir-withholding-tax-table-for-the-year-2023-onward
      */
     public double getWithholdingTax(double grossForCutoff) {
-        if (grossForCutoff <= 10000) {
+        if (grossForCutoff <= 10417) {
             return 0.0;
-        } else if (grossForCutoff <= 20000) {
-            return (grossForCutoff - 10000) * 0.10;
+        } else if (grossForCutoff <= 16666) {
+            return (grossForCutoff - 10417) * 0.15;
+        } else if (grossForCutoff <= 33332) {
+            return 937.50 + (grossForCutoff - 16667) * 0.20;
+        } else if (grossForCutoff <= 83332) {
+            return 4270.70 + (grossForCutoff - 33333) * 0.25;
+        } else if (grossForCutoff <= 333332) {
+            return 16770.70 + (grossForCutoff - 83333) * 0.30;
         } else {
-            return 1000 + (grossForCutoff - 20000) * 0.15;
+            return 91770.70 + (grossForCutoff - 333333) * 0.35;
         }
     }
 
