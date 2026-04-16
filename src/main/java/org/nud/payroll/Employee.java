@@ -117,9 +117,19 @@ public abstract class Employee {
     }
 
     /**
-     * Converts monthly basic rate to daily rate
-     * Assumes 26 working days per month
-     * TODO: "grep source"; no specific DOLE mandate for 26 days(?)
+     * Converts monthly basic rate to daily rate based on 6 days workweek
+     *
+     * 6-day workweek (Mon–Sat), one rest day per week:
+     *  365 days - 52 rest days = 313 working days
+     *  313 / 12 months = 26.08 → rounded to 26
+     *
+     * Other factors:
+     *   Work Schedule    | Annual Days | Monthly Divisor
+     *   Paid Monthly     |     365     |     ~30.42
+     *   6 days (Mon-Sat) |     313     |     ~26
+     *   5 days (Mon-Fri) |     261     |     ~22
+     *
+     * https://www.respicio.ph/commentaries/why-monthly-rate-computation-uses-26-days-in-philippine-labor-law
      */
     protected double getDailyRate() {
         return basicRate / 26.0;
