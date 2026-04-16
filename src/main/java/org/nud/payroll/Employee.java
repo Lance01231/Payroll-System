@@ -212,10 +212,21 @@ public abstract class Employee {
     /**
      * Computes employee Pag-IBIG contribution
      *
-     * TODO: Replace with actual Pag-IBIG contribution table
+     * Employee share rate based on monthly Fund Salary bracket (HDMF Circular No. 460):
+     *   Fund Salary   | Employee Rate
+     *   <= 1,500      | 1%
+     *   > 1,500       | 2% (capped at MFS 10,000; max 200/month)
+     *
+     * https://mpm.ph/wp-content/uploads/2024/01/HDMF-Circular-No.-460-Pag-ibig-HDMF-Table-2024.pdf
      */
     public double getPagibigContribution() {
-        return basicRate * 0.02;
+        double mfs = Math.min(basicRate, 10000.0);
+
+        if (mfs <= 1500.0) {
+            return mfs * 0.01;
+        } else {
+            return mfs * 0.02;
+        }
     }
 
     public String getEmployeeName() {
