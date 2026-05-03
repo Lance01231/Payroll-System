@@ -4,13 +4,12 @@ package org.nud.payroll;
  * Paid hourly with no leave benefits or government contributions...
  */
 public class PartTimeEmployee extends Employee {
-    public PartTimeEmployee(String id, String name, double rate, int cutOff,
-                            String schedule, int sl, int vl, int el, double loan) {
-        super(id, name, rate, cutOff, schedule, sl, vl, el, loan);
+    public PartTimeEmployee(String id, String name, double rate, int cutOff) {
+        super(id, name, rate, cutOff);
     }
 
     @Override
-    public String getEmployeeType() {
+    public String employeeType() {
         return "Part-time";
     }
 
@@ -19,42 +18,48 @@ public class PartTimeEmployee extends Employee {
         return false;
     }
 
+    // hourly rate for part-time is the basic rate, no monthly to hourly conversion
+    @Override
+    public double getOvertimePay() {
+        return getOvertimeHours() * getBasicRate() * 1.25;
+    }
+
     // gross pay for part-time is computed from actual hours worked at hourly rate,
     // plus overtime at 1.25x (labor code art. 87) there is no semi-monthly salary split
     @Override
-    public double calculateGrossPay(double filedOtHours) {
+    protected double calculateGrossPay() {
         double hourlyRate = getBasicRate();
-        double overtimePay = filedOtHours * hourlyRate * 1.25;
+        double overtimePay = getOvertimeHours() * hourlyRate * 1.25;
         return getWorkedHours() * hourlyRate + overtimePay;
     }
 
     // "no work, no pay"
     @Override
-    public double calculateAbsencesDeduction(double leaveDaysUsed) {
+    protected double calculateAbsencesDeduction(double leaveDaysUsed) {
         return 0.0;
     }
 
     // no undertime deduction
     @Override
-    public double calculateUndertimeDeduction() {
+    protected double calculateUndertimeDeduction() {
         return 0.0;
     }
 
     // part-time employees are not covered by SSS
     @Override
-    public double getSSSContribution() {
+    protected double calculateSSSContribution() {
         return 0.0;
     }
 
     // part-time employees are not covered by PhilHealth
     @Override
-    public double getPhilhealthContribution() {
+    protected double calculatePhilhealthContribution() {
         return 0.0;
     }
 
     // part-time employees are not covered by Pag-IBIG
     @Override
-    public double getPagibigContribution() {
+    protected double calculatePagibigContribution() {
         return 0.0;
     }
 }

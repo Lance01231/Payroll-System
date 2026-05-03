@@ -12,14 +12,14 @@ public class InputValidator {
     private static final double MAX_LOANS = 100_000;
     private static final int MAX_LEAVE_DAYS = 15;
 
-    // 3-10 alphanumeric characters and hyphens are allowed
+    // 1-20 alphanumeric characters and hyphens are allowed
     public static boolean isValidEmployeeId(String id) {
-        return id != null && id.matches("^[A-Za-z0-9-]{3,10}$");
+        return id != null && id.matches("^[A-Za-z0-9-]{1,20}$");
     }
 
-    // 6-50 letters, spaces, hyphens, apostrophes only. no numbers
+    // 2-50 letters, spaces, hyphens, apostrophes, dots only. no numbers
     public static boolean isValidName(String name) {
-        return name != null && name.trim().matches("^[A-Za-z '-]{6,50}$");
+        return name != null && name.trim().matches("^[A-Za-z '.-]{2,50}$");
     }
 
     // R, P, C, or T only (case-insensitive)

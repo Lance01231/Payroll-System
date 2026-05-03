@@ -1,0 +1,24 @@
+{
+  "search.exclude": { "**/target": true },
+  "files.watcherExclude": { "**/target": true },
+  "errorLens.enabledDiagnosticLevels": ["error", "warning"],
+  "chat.disableAIFeatures": true,
+  "redhat.telemetry.enabled": false,
+  "gitlens.telemetry.enabled": false,
+  "files.trimTrailingWhitespace": true,
+  "files.trimFinalNewlines": true,
+  "files.insertFinalNewline": true,
+  "java.server.launchMode": "LightWeight",
+  "java.configuration.updateBuildConfiguration": "automatic",
+  "java.compile.nullAnalysis.mode": "automatic",
+  "java.inlayHints.parameterNames.enabled": "all",
+  "java.inlayHints.parameterTypes.enabled": true,
+  "[java]": {
+    "editor.formatOnSave": true,
+    "editor.formatOnPaste": true,
+    "editor.insertSpaces": true,
+    "editor.suggestSelection": "first",
+    "editor.defaultFormatter": "redhat.java",
+    "editor.codeActionsOnSave": { "source.organizeImports": "explicit" }
+  }
+}

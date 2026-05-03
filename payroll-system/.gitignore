@@ -1,0 +1,8 @@
+target/
+.idea/
+.settings/
+.classpath
+.project
+*-meta.xml
+docs/Etc.md
+tmp/

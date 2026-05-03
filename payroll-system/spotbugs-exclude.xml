@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<FindBugsFilter>
+    <Match>
+        <Class name="org.nud.payroll.PayrollSystem" />
+        <Method name="main" />
+        <Bug pattern="DM_DEFAULT_ENCODING" />
+    </Match>
+    <Match>
+        <Class name="org.nud.payroll.PayrollSystem" />
+        <Method name="main" />
+        <Bug pattern="DM_CONVERT_CASE" />
+    </Match>
+    <Match>
+        <Class name="org.nud.payroll.InputValidator" />
+        <Method name="isValidTime" />
+        <Bug pattern="DM_CONVERT_CASE" />
+    </Match>
+</FindBugsFilter>

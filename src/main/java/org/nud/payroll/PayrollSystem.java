@@ -1,151 +1,192 @@
 package org.nud.payroll;
 
-import java.util.Scanner;
+import com.formdev.flatlaf.FlatDarkLaf;
+import javax.swing.*;
+import java.awt.*;
 
 /**
- * Main entry point: Handles user input, employee creation, and payroll slip display
- * All computation logic is delegated to the Employee class hierarchy
+ * Main JFrame — boots FlatLaf Dark, manages CardLayout navigation,
+ * and provides the shared dark-mode design system.
  */
-public class PayrollSystem {
-    // private static final String BLUE = "\u001B[94m";
-    // private static final String GREEN = "\u001B[92m";
-    // private static final String YELLOW = "\u001B[93m";
-    // private static final String RED = "\u001B[91m";
-    // private static final String RESET = "\u001B[0m";
+public class PayrollSystem extends JFrame {
 
-    public static void main(String[] args) {
-        try (Scanner sc = new Scanner(System.in)) {
-            System.out.println("ABC Company");
-            System.out.println("Employee Payroll System\n");
+    // ── Dark mode palette (GitHub-dark-inspired) ──────────────────────────
+    static final Color C_BG       = new Color(13,  17,  23);   // #0D1117 deepest bg
+    static final Color C_SURFACE  = new Color(22,  27,  34);   // #161B22 cards
+    static final Color C_SURFACE2 = new Color(33,  38,  45);   // #21262D elevated
+    static final Color C_BORDER   = new Color(48,  54,  61);   // #30363D borders
+    static final Color C_PRIMARY  = new Color(88, 166, 255);   // #58A6FF blue accent
+    static final Color C_SUCCESS  = new Color(63, 185,  80);   // #3FB950 green
+    static final Color C_DANGER   = new Color(248, 81,  73);   // #F85149 red
+    static final Color C_WARNING  = new Color(227, 179,  65);  // #E3B341 yellow
+    static final Color C_TEXT     = new Color(230, 237, 243);  // #E6EDF3 primary text
+    static final Color C_MUTED    = new Color(139, 148, 158);  // #8B949E muted text
+    static final Color C_NAV      = new Color(13,  17,  23);   // sidebar bg
+    static final Color C_NAV_ITEM = new Color(33,  38,  45);   // nav hover
+    static final Color C_INPUT    = new Color(33,  38,  45);   // input bg
+    static final Color C_ROW_ALT  = new Color(22,  27,  34);   // table alt row
 
-            System.out.print("Employee ID: ");
-            String id = InputValidator.validateInput(
-                    sc,
-                    employeeId -> InputValidator.isValidEmployeeId(employeeId),
-                    "ID must be 3-10 alphanumeric characters!");
+    // Convenience aliases kept for panel compat
+    static final Color C_CARD  = C_SURFACE;
+    static final Color C_NAV_BAR = C_SURFACE;   // top header strip
 
-            System.out.print("Employee Name: ");
-            String name = InputValidator.validateInput(
-                    sc,
-                    employeeName -> InputValidator.isValidName(employeeName),
-                    "Name must be 6-50 letters only! (spaces, hyphens, apostrophes are allowed).");
+    // ── Typography ────────────────────────────────────────────────────────
+    static final Font F_TITLE = new Font("Segoe UI", Font.BOLD,  26);
+    static final Font F_H2    = new Font("Segoe UI", Font.BOLD,  16);
+    static final Font F_LABEL = new Font("Segoe UI", Font.BOLD,  13);
+    static final Font F_BODY  = new Font("Segoe UI", Font.PLAIN, 13);
+    static final Font F_SMALL = new Font("Segoe UI", Font.PLAIN, 11);
+    static final Font F_MONO  = new Font("JetBrains Mono,Consolas,Monospaced", Font.PLAIN, 13);
 
-            System.out.println("\nEmployee Type:");
-            System.out.println("[R]egular");
-            System.out.println("[P]robationary");
-            System.out.println("[C]ontractual");
-            System.out.println("[T]art-time");
-            System.out.print("Enter choice: ");
-            char typeChoice = InputValidator.validateChar(
-                    sc, c -> c == 'R' || c == 'P' || c == 'C' || c == 'T', "Enter R, P, C, or T only!");
+    // ── Card keys ─────────────────────────────────────────────────────────
+    static final String CARD_LOGIN    = "LOGIN";
+    static final String CARD_ADMIN    = "ADMIN";
+    static final String CARD_EMPLOYEE = "EMPLOYEE";
 
-            System.out.print("\nBasic Salary (Monthly / Hourly for Part-time): ");
-            double basicRate = InputValidator.validateDouble(
-                    sc, salary -> InputValidator.isValidSalary(salary), "Salary must be between 500 and 500,000!");
+    // ── State ─────────────────────────────────────────────────────────────
+    private final CardLayout    cardLayout    = new CardLayout();
+    private final JPanel        root          = new JPanel(cardLayout);
+    private final PayrollService service;
+    private final AdminPanel    adminPanel;
+    private final EmployeePanel employeePanel;
 
-            System.out.println("\nCut-off Period:");
-            System.out.println("1 - 1st-15th of the month");
-            System.out.println("2 - 16th-30th of the month");
-            System.out.print("Enter choice (1 or 2): ");
-            int cutOff = InputValidator.validateInt(
-                    sc, period -> InputValidator.isValidCutOff(period), "Must be 1 or 2 only!");
+    public PayrollSystem(PayrollService svc) {
+        super("ABC Company — Employee Payroll System");
+        this.service = svc;
 
-            Employee emp =
-                    switch (typeChoice) {
-                        case 'R' -> new RegularEmployee(id, name, basicRate, cutOff);
-                        case 'P' -> new ProbationaryEmployee(id, name, basicRate, cutOff);
-                        case 'C' -> new ContractualEmployee(id, name, basicRate, cutOff);
-                        case 'T' -> new PartTimeEmployee(id, name, basicRate, cutOff);
-                        // it should never reach this point
-                        default -> throw new IllegalStateException("Unexpected value: " + typeChoice);
-                    };
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setSize(1200, 760);
+        setMinimumSize(new Dimension(1000, 680));
+        setLocationRelativeTo(null);
 
-            System.out.println("\nTimekeeping (15 days):");
-            double[] timeIns = new double[15];
-            double[] timeOuts = new double[15];
+        adminPanel    = new AdminPanel(this, service);
+        employeePanel = new EmployeePanel(this, service);
 
-            // custom validation for paired time in/out
-            for (int day = 1; day <= 15; day++) {
-                double timeIn;
-                double timeOut;
-                for (;;) {
-                    System.out.print(day + " Time In  (e.g. 8, 11:45am): ");
-                    timeIn = InputValidator.isValidTime(sc, 0.0, "Enter valid time (e.g. 8, 8:00am) or 'absent'.");
-                    System.out.print("   Time Out (e.g. 17, 5pm): ");
-                    timeOut =
-                            InputValidator.isValidTime(sc, 0.0, "Enter valid time (e.g. 17, 5pm, 9:30pm) or 'absent'.");
+        root.setBackground(C_BG);
+        root.add(new LoginPanel(this, service), CARD_LOGIN);
+        root.add(adminPanel,                    CARD_ADMIN);
+        root.add(employeePanel,                 CARD_EMPLOYEE);
 
-                    if (InputValidator.isValidTimePair(timeIn, timeOut)) {
-                        break;
-                    }
-                    System.out.println("Time Out must be after Time In...");
-                }
-                timeIns[day - 1] = timeIn;
-                timeOuts[day - 1] = timeOut;
+        setContentPane(root);
+    }
+
+    // ── Navigation ────────────────────────────────────────────────────────
+    void goLogin()                     { cardLayout.show(root, CARD_LOGIN); }
+    void goAdmin()                     { adminPanel.refresh(); cardLayout.show(root, CARD_ADMIN); }
+    void goEmployee(String employeeId) { employeePanel.load(employeeId); cardLayout.show(root, CARD_EMPLOYEE); }
+
+    // ── Shared UI factory helpers ─────────────────────────────────────────
+
+    static JButton makeBtn(String text, Color bg) {
+        JButton b = new JButton(text);
+        b.setFont(F_BODY);
+        b.setBackground(bg);
+        b.setForeground(Color.WHITE);
+        b.setFocusPainted(false);
+        b.setBorderPainted(false);
+        b.setOpaque(true);
+        b.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+        b.setPreferredSize(new Dimension(160, 38));
+        // Hover effect
+        b.addMouseListener(new java.awt.event.MouseAdapter() {
+            final Color base = bg;
+            @Override public void mouseEntered(java.awt.event.MouseEvent e) {
+                b.setBackground(base.brighter());
             }
-
-            emp.setTimeKeeping(timeIns, timeOuts);
-
-            double leaveDaysUsed = 0.0;
-            if (emp.hasLeaveBenefits()) {
-                System.out.print("\nNumber of leave days used: ");
-                leaveDaysUsed = InputValidator.validateDouble(
-                        sc, days -> InputValidator.isValidLeaveDays(days), "Leave days must be between 0 and 15!");
+            @Override public void mouseExited(java.awt.event.MouseEvent e) {
+                b.setBackground(base);
             }
+        });
+        return b;
+    }
 
-            System.out.print("Loans: ");
-            double loans = InputValidator.validateDouble(
-                    sc, loanAmount -> InputValidator.isValidLoans(loanAmount), "Loans must be between 0 and 100,000!");
- 
-            double netPay = emp.calculateNetPay(leaveDaysUsed, loans);
-            printPayrollSlip(emp, leaveDaysUsed, loans, netPay);
+    static JTextField styledField(int cols) {
+        JTextField tf = new JTextField(cols);
+        tf.setFont(F_BODY);
+        tf.setBackground(C_INPUT);
+        tf.setForeground(C_TEXT);
+        tf.setCaretColor(C_TEXT);
+        tf.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createLineBorder(C_BORDER),
+                BorderFactory.createEmptyBorder(8, 12, 8, 12)));
+        return tf;
+    }
+
+    static JPasswordField styledPasswordField(int cols) {
+        JPasswordField pf = new JPasswordField(cols);
+        pf.setFont(F_BODY);
+        pf.setBackground(C_INPUT);
+        pf.setForeground(C_TEXT);
+        pf.setCaretColor(C_TEXT);
+        pf.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createLineBorder(C_BORDER),
+                BorderFactory.createEmptyBorder(8, 12, 8, 12)));
+        return pf;
+    }
+
+    static JLabel lbl(String text, Font font, Color color) {
+        JLabel l = new JLabel(text);
+        l.setFont(font);
+        l.setForeground(color);
+        return l;
+    }
+
+    static JPanel surface(int padH, int padV) {
+        JPanel p = new JPanel();
+        p.setBackground(C_SURFACE);
+        p.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createLineBorder(C_BORDER),
+                BorderFactory.createEmptyBorder(padV, padH, padV, padH)));
+        return p;
+    }
+
+    /** Horizontal separator line. */
+    static JSeparator sep() {
+        JSeparator s = new JSeparator();
+        s.setForeground(C_BORDER);
+        s.setMaximumSize(new Dimension(Integer.MAX_VALUE, 1));
+        return s;
+    }
+
+    /**
+     * Parses a time string without a Scanner.
+     * Returns 0.0 = absent, decimal hours = valid, null = invalid.
+     */
+    static Double parseTime(String raw) {
+        if (raw == null || raw.isBlank()) return 0.0;
+        String s = raw.trim().toLowerCase().replace(" ", "");
+        if (s.equals("absent") || s.equals("a")) return 0.0;
+        if (s.matches("^\\d+(\\.\\d+)?$")) {
+            double v = Double.parseDouble(s);
+            return (v >= 0 && v <= 24) ? v : null;
         }
+        if (s.matches("^(1[0-2]|0?[1-9])(:[0-5][0-9])?(am|pm)$")) {
+            int sfx    = s.length() - 2;
+            int colon  = s.indexOf(':');
+            int hour   = Integer.parseInt(s.substring(0, colon >= 0 ? colon : sfx));
+            int minute = colon >= 0 ? Integer.parseInt(s.substring(colon + 1, sfx)) : 0;
+            boolean pm = s.endsWith("pm");
+            hour = (hour % 12) + (pm ? 12 : 0);
+            return hour + minute / 60.0;
+        }
+        return null;
     }
 
-    // whole numbers without decimals, otherwise 2 decimal places
-    private static String format(double amount) {
-        return amount % 1 == 0 ? String.format("%.0f", amount) : String.format("%.2f", amount);
-    }
+    // ── Entry point ───────────────────────────────────────────────────────
+    public static void main(String[] args) {
+        DatabaseManager.init();
 
-    private static void printPayrollSlip(Employee emp, double leaveDaysUsed, double loans, double netPay) {
-        double grossPay = emp.calculateGrossPay();
+        // Install FlatLaf Dark — transforms ALL Swing components automatically
+        FlatDarkLaf.setup();
+        UIManager.put("Button.arc",          10);
+        UIManager.put("Component.arc",       8);
+        UIManager.put("TextComponent.arc",   6);
+        UIManager.put("ScrollBar.thumbArc",  999);
+        UIManager.put("ScrollBar.width",     10);
+        UIManager.put("TabbedPane.showTabSeparators", true);
+        UIManager.put("@accentColor",        "#58A6FF");
+        UIManager.put("defaultFont",         F_BODY);
 
-        System.out.println("\n========================================");
-        System.out.println("ABC Company");
-        System.out.println("Employee Payroll System");
-        System.out.println("========================================");
-
-        System.out.println("Employee ID     : " + emp.getEmployeeNumber());
-        System.out.println("Employee Name   : " + emp.getEmployeeName());
-        System.out.println("Employee Type   : " + emp.getEmployeeType());
-        System.out.println("Basic Salary    : " + format(emp.getBasicRate())
-                + (emp instanceof PartTimeEmployee ? " (Hourly)" : " (Monthly)"));
-        System.out.println(
-                "Cut-off Period  : " + (emp.getCutOffPeriod() == 1 ? "1st-15th" : "16th-30th") + " of the month");
-
-        System.out.println("\nTotal Hours:");
-        System.out.printf("Worked                     : %s%n", format(emp.getWorkedHours()));
-        // System.out.printf(
-        //         "Absent/Undertime           : %s days / %s hours%n",
-        //         format(emp.getAbsentDays()), format(emp.getUndertimeHours()));
-        System.out.printf(
-                "Absent/Undertime           : %s%n", format(emp.getAbsentDays() * 8.0 + emp.getUndertimeHours()));
-        System.out.printf("Overtime                   : %s%n", format(emp.getOvertimeHours()));
-
-        System.out.println("\nBasic Salary: " + format(emp.getBasicRate()));
-        System.out.println("Additional:");
-        System.out.printf("  Overtime                 : %s%n", format(grossPay - (emp.getBasicRate() / 2.0)));
-
-        System.out.println("\nDeductions:");
-        System.out.printf("  Undertime/Late           : %s%n", format(emp.calculateUndertimeDeduction()));
-        System.out.printf("  Absences                 : %s%n", format(emp.calculateAbsencesDeduction(leaveDaysUsed)));
-        System.out.printf("  SSS                      : %s%n", format(emp.getSSSContribution()));
-        System.out.printf("  W/Tax                    : %s%n", format(emp.getWithholdingTax(grossPay)));
-        System.out.printf("  Pag-IBIG                 : %s%n", format(emp.getPagibigContribution()));
-        System.out.printf("  PhilHealth               : %s%n", format(emp.getPhilhealthContribution()));
-        System.out.printf("  Loans                    : %s%n", format(loans));
-        System.out.println("========================================");
-        System.out.printf("Net Pay                    : %s%n", format(netPay));
-        System.out.println("========================================");
+        SwingUtilities.invokeLater(() -> new PayrollSystem(new PayrollService()).setVisible(true));
     }
 }

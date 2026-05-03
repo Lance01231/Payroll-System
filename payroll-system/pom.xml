@@ -14,7 +14,7 @@
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 
         <maven.compiler.version>3.15.0</maven.compiler.version>
-        <exec.maven.version>3.5.0</exec.maven.version>
+        <exec.maven.version>3.6.3</exec.maven.version>
         <spotless.version>3.4.0</spotless.version>
         <palantir.java.format.version>2.90.0</palantir.java.format.version>
         <google.java.format.version>1.25.2</google.java.format.version>
@@ -122,20 +122,5 @@
             </plugin>
         </plugins>
     </build>
-    <dependencies>
-        <!-- H2 in-memory SQL database — no file I/O, no external server required -->
-        <dependency>
-            <groupId>com.h2database</groupId>
-            <artifactId>h2</artifactId>
-            <version>2.3.232</version>
-            <scope>runtime</scope>
-        </dependency>
-        <!-- FlatLaf — modern flat dark/light look-and-feel for Swing -->
-        <dependency>
-            <groupId>com.formdev</groupId>
-            <artifactId>flatlaf</artifactId>
-            <version>3.4.1</version>
-        </dependency>
-    </dependencies>
 
 </project>

@@ -4,13 +4,12 @@ package org.nud.payroll;
  * Monthly rate with no leave benefits; inherits standard payroll computations
  * */
 public class ContractualEmployee extends Employee {
-    public ContractualEmployee(String id, String name, double rate, int cutOff,
-                               String schedule, int sl, int vl, int el, double loan) {
-        super(id, name, rate, cutOff, schedule, sl, vl, el, loan);
+    public ContractualEmployee(String id, String name, double rate, int cutOff) {
+        super(id, name, rate, cutOff);
     }
 
     @Override
-    public String getEmployeeType() {
+    public String employeeType() {
         return "Contractual";
     }
 
