@@ -1,7 +1,10 @@
 package org.nud.payroll;
 
 /**
- * Paid hourly with no leave benefits or government contributions...
+ * Represents our flexible part-time staff!
+ * 
+ * They are paid purely based on the hours they work. Since they are part-time, 
+ * they don't get the same leave benefits or government contributions as full-time staff.
  */
 public class PartTimeEmployee extends Employee {
     public PartTimeEmployee(String id, String name, double rate, int cutOff,

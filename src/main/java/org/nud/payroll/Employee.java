@@ -1,13 +1,14 @@
 package org.nud.payroll;
 
 /**
- * Base class for all employee types.
+ * The base template for everyone who works at the company!
  *
- * Encapsulates payroll computation logic: timekeeping, gross pay,
- * deductions (SSS, PhilHealth, Pag-IBIG, withholding tax), and net pay.
+ * This class handles all the heavy lifting for computing payroll: figuring out
+ * how much to pay, taking out deductions (like taxes and SSS), and arriving at
+ * the final take-home pay.
  *
- * Subclasses override specific behaviors based on employee type rules,
- * such as leave benefit eligibility and contribution applicability.
+ * Specific types of employees (like Regular or Part-time) will build on top of
+ * this to add their own special rules.
  */
 public abstract class Employee {
     private final String employeeName;
@@ -42,8 +43,9 @@ public abstract class Employee {
     public abstract boolean hasLeaveBenefits();
 
     /**
-     * Processes all time-in/time-out arrays into worked hours, overtime,
-     * undertime, and absent days for 15d cutoff period
+     * Takes a look at all the clock-in and clock-out times to figure out
+     * how many hours were worked, how many were missed, and if the employee
+     * was absent for the whole day.
      */
     public void setTimeKeeping(double[] timeIns, double[] timeOuts) {
         this.workedHours = 0.0;
@@ -73,7 +75,8 @@ public abstract class Employee {
     }
 
     /**
-     * Computes the entire net pay; Gross Pay - all deductions
+     * The moment of truth! This calculates the final take-home pay by taking the 
+     * gross pay and subtracting all the nasty deductions (taxes, loans, absences, etc.).
      */
     public double calculateNetPay(double leaveDaysUsed, double filedOtHours, double loansToDeduct) {
         double grossPay = calculateGrossPay(filedOtHours);
@@ -90,7 +93,8 @@ public abstract class Employee {
     }
 
     /**
-     * For monthly rate employees, basic salary is split per semi-monthly cutoff + overtime pay
+     * Calculates the gross pay for the 15-day cutoff period, which includes 
+     * half of their monthly salary plus any approved overtime they worked.
      */
     public double calculateGrossPay(double filedOtHours) {
         double basicCutoff = basicRate / 2.0; 

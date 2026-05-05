@@ -1,11 +1,11 @@
 package org.nud.payroll;
 
 /**
- * Service layer — the "integration glue" between the UI and the backend.
+ * The PayrollService is the brain of the operation!
  *
- * Connects the dashboard UI to AccountRepository and EmployeeRepository.
- * All business decisions (who can log in, how net pay is calculated) are
- * delegated here so that the UI layer stays thin.
+ * It acts as the middleman between the user interface (the screens you see) 
+ * and our database repositories. Whenever someone clicks a button to log in, 
+ * view a payslip, or clock in, this service does the actual work behind the scenes.
  */
 public class PayrollService {
 
@@ -16,7 +16,7 @@ public class PayrollService {
     // ---------------------------------------------------------------
 
     /**
-     * Authenticates a login attempt.
+     * Checks if the username and password match any of our records.
      *
      * @param username entered by the user
      * @param password entered by the user
@@ -31,8 +31,8 @@ public class PayrollService {
     // ---------------------------------------------------------------
 
     /**
-     * Persists a new Employee record and creates a linked EMPLOYEE
-     * account so the employee can log in later.
+     * Registers a new employee in the system and automatically sets up 
+     * a shiny new user account so they can log in to the portal later!
      *
      * @param emp      the constructed Employee object to save
      * @param username login username for the employee account

@@ -1,10 +1,10 @@
 package org.nud.payroll;
 
 /**
- * Represents a system user account.
+ * This is what lets people log into the app!
  *
- * Stores credentials and the role (ADMIN or EMPLOYEE) used for
- * Role-Based Access Control (RBAC) throughout the payroll system.
+ * It stores their username, their secure password hash, and most importantly,
+ * their role (whether they are an ADMIN pulling the strings, or an EMPLOYEE checking their payslip).
  */
 public class User {
     public enum Role {

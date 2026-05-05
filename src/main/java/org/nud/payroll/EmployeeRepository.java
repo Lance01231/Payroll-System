@@ -8,16 +8,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * SQL-backed repository for Employee master records.
+ * Think of this as the company's filing cabinet for employee records!
  *
- * <p>All data is stored in the MySQL EMPLOYEES table managed by
- * {@link DatabaseManager}. No file I/O; no external server required.
- *
- * <p>The table schema stores only the data needed to reconstruct an
- * {@link Employee} object (ID, name, type, basic rate, cut-off period).
- * Timekeeping state is kept in memory on the live {@link Employee} object
- * for the duration of a session, which is correct since it is always
- * re-entered each cutoff period.
+ * It talks directly to our MySQL database to save and retrieve employee details
+ * like their name, role, and salary. It only saves the core details, while
+ * things like daily timekeeping are handled on the fly when we do payroll.
  */
 public class EmployeeRepository {
 
@@ -26,8 +21,8 @@ public class EmployeeRepository {
     // ---------------------------------------------------------------
 
     /**
-     * Persists a new Employee record to the database.
-     * Used by the Admin dashboard when registering new staff.
+     * Saves a brand new employee into the database.
+     * This is called by the Admin when they finish filling out the new hire form!
      *
      * @param emp the Employee object to save
      */
@@ -60,7 +55,7 @@ public class EmployeeRepository {
     // ---------------------------------------------------------------
 
     /**
-     * Retrieves an Employee by their unique employee ID.
+     * Looks up an employee by their unique ID number.
      *
      * @param id the employee number to search for (case-insensitive)
      * @return the reconstructed {@link Employee} object, or {@code null} if not found
@@ -84,8 +79,8 @@ public class EmployeeRepository {
     }
 
     /**
-     * Returns all employees currently stored in the database.
-     * Used by the Admin "View All Records" feature.
+     * Grabs a list of every single employee in the company!
+     * This powers the Admin's "View All Records" screen.
      *
      * @return unmodifiable list of all employees
      */
@@ -126,8 +121,8 @@ public class EmployeeRepository {
     // ---------------------------------------------------------------
 
     /**
-     * Reconstructs the correct {@link Employee} subclass from a SQL row.
-     * Maps the stored {@code employee_type} string back to the right subclass.
+     * A handy little helper method that looks at a row of data from the database
+     * and turns it back into the correct type of Employee object!
      */
     private static Employee buildEmployee(ResultSet rs) throws SQLException {
         String empId   = rs.getString("employee_id");

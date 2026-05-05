@@ -28,8 +28,9 @@ public class SubmissionRepository {
     }
 
     /**
-     * Submits or updates the payroll request for the given employee.
-     * Keeps it in PENDING state. If there's an existing one, overrides it if it was rejected or pending.
+     * Sends a payroll request to the admin for approval.
+     * It starts in a 'PENDING' state. If an employee submits again while one is already pending
+     * (or if the last one was rejected), we just update their existing request to keep things clean.
      */
     public static void submitPayroll(String employeeId, double leaveDays, double otHours, double loans) {
         // Find existing to see if we should update or insert

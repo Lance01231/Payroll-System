@@ -20,8 +20,8 @@ public class AttendanceRepository {
     }
 
     /**
-     * Records the time in for the given employee for the given date.
-     * If a record already exists, it does nothing (does not overwrite).
+     * Logs the exact time an employee arrives at work.
+     * If they try to clock in twice on the same day, we just ignore the second attempt!
      */
     public static void clockIn(String employeeId, LocalDate date, double timeIn) {
         String sql = "INSERT INTO ATTENDANCE (employee_id, record_date, time_in) VALUES (?, ?, ?) " +
@@ -52,8 +52,9 @@ public class AttendanceRepository {
     }
 
     /**
-     * Records the time out for the given employee for the given date.
-     * Updates the existing record if it exists, otherwise inserts a new one with no time_in.
+     * Logs the time an employee leaves for the day.
+     * It updates their existing clock-in record. If they forgot to clock in this morning, 
+     * we still save their clock-out time so the HR team can investigate later!
      */
     public static void clockOut(String employeeId, LocalDate date, double timeOut) {
         String updateSql = "UPDATE ATTENDANCE SET time_out = ? WHERE employee_id = ? AND record_date = ?";

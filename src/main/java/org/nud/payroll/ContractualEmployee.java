@@ -1,8 +1,11 @@
 package org.nud.payroll;
 
 /**
- * Monthly rate with no leave benefits; inherits standard payroll computations
- * */
+ * Represents staff working under a specific, limited-time contract.
+ * 
+ * They get a steady monthly salary, but unlike regular employees, 
+ * they don't accumulate paid leave benefits.
+ */
 public class ContractualEmployee extends Employee {
     public ContractualEmployee(String id, String name, double rate, int cutOff,
                                String schedule, int sl, int vl, int el, double loan) {
