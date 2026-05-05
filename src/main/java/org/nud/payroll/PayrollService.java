@@ -22,7 +22,7 @@ public class PayrollService {
      * @param password entered by the user
      * @return the authenticated User object, or null if credentials fail
      */
-    public User authenticate(String username, String password) {
+    public java.util.Optional<User> authenticate(String username, String password) {
         return AccountRepository.authenticate(username, password);
     }
 

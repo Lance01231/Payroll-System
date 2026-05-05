@@ -10,7 +10,7 @@ import java.util.List;
 /**
  * SQL-backed repository for Employee master records.
  *
- * <p>All data is stored in the H2 in-memory EMPLOYEES table managed by
+ * <p>All data is stored in the MySQL EMPLOYEES table managed by
  * {@link DatabaseManager}. No file I/O; no external server required.
  *
  * <p>The table schema stores only the data needed to reconstruct an

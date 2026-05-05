@@ -4,16 +4,24 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.Optional;
 
 /**
  * The AccountRepository handles all the database operations for user accounts!
- * We're using an in-memory H2 database here, so no external servers or files needed.
- * It's all kept in RAM for simplicity and speed.
+ * We're now connected to a persistent MySQL database, meaning all accounts
+ * are securely saved to your local MySQL server.
  */
 public class AccountRepository {
 
-    // --- Let's add some data! ---
+    // --- Our handy SQL queries kept in one place ---
+    private static final String SQL_INSERT_ACCOUNT = 
+        "INSERT INTO ACCOUNTS (username, password, role, linked_employee_id) VALUES (?, ?, 'EMPLOYEE', ?)";
+    private static final String SQL_AUTH_ACCOUNT = 
+        "SELECT role, linked_employee_id FROM ACCOUNTS WHERE username = ? AND password = ?";
+    private static final String SQL_DELETE_ACCOUNT = 
+        "DELETE FROM ACCOUNTS WHERE linked_employee_id = ?";
 
+    // --- Let's add some data! ---
     /**
      * Inserts a new EMPLOYEE-role account linked to the given employee ID.
      * Called by the Admin when registering a new staff member.
@@ -23,56 +31,55 @@ public class AccountRepository {
      * @param linkedEmployeeId the Employee ID this account belongs to
      */
     public static void addEmployeeAccount(String username, String password, String linkedEmployeeId) {
-        String sql = "INSERT INTO ACCOUNTS (username, password, role, linked_employee_id)"
-                + " VALUES (?, ?, 'EMPLOYEE', ?)";
+        String hashedPassword = SecurityUtils.hashPassword(password);
+        
         try (Connection conn = DatabaseManager.getConnection();
-                PreparedStatement ps = conn.prepareStatement(sql)) {
+                PreparedStatement ps = conn.prepareStatement(SQL_INSERT_ACCOUNT)) {
             ps.setString(1, username);
-            ps.setString(2, password);
+            ps.setString(2, hashedPassword);
             ps.setString(3, linkedEmployeeId);
             ps.executeUpdate();
         } catch (SQLException e) {
-            throw new RuntimeException("Failed to add employee account: " + e.getMessage(), e);
+            throw new DatabaseOperationException("Oops, failed to save the employee account!", e);
         }
     }
 
     // --- Time to read some data! ---
 
     /**
-     * Authenticates a user by username and password.
+     * Tries to log a user in!
      *
-     * @return the matching {@link User} object, or {@code null} if credentials are wrong
+     * @return an Optional containing the User if they logged in successfully, or empty if they didn't.
      */
-    public static User authenticate(String username, String password) {
-        String sql = "SELECT role, linked_employee_id FROM ACCOUNTS"
-                + " WHERE username = ? AND password = ?";
+    public static Optional<User> authenticate(String username, String password) {
+        String hashedPassword = SecurityUtils.hashPassword(password);
+        
         try (Connection conn = DatabaseManager.getConnection();
-                PreparedStatement ps = conn.prepareStatement(sql)) {
+                PreparedStatement ps = conn.prepareStatement(SQL_AUTH_ACCOUNT)) {
             ps.setString(1, username);
-            ps.setString(2, password);
+            ps.setString(2, hashedPassword);
             try (ResultSet rs = ps.executeQuery()) {
                 if (rs.next()) {
                     User.Role role = User.Role.valueOf(rs.getString("role"));
                     String linkedId = rs.getString("linked_employee_id"); // may be NULL
-                    return new User(username, password, role, linkedId);
+                    return Optional.of(new User(username, hashedPassword, role, linkedId));
                 }
             }
         } catch (SQLException e) {
-            throw new RuntimeException("Authentication query failed: " + e.getMessage(), e);
+            throw new DatabaseOperationException("Uh oh, we had a problem checking those credentials.", e);
         }
-        return null;
+        return Optional.empty();
     }
 
     // --- Clean up time (Delete) ---
 
     public static void deleteByEmployeeId(String employeeId) {
-        String sql = "DELETE FROM ACCOUNTS WHERE linked_employee_id = ?";
         try (Connection conn = DatabaseManager.getConnection();
-                PreparedStatement ps = conn.prepareStatement(sql)) {
+                PreparedStatement ps = conn.prepareStatement(SQL_DELETE_ACCOUNT)) {
             ps.setString(1, employeeId);
             ps.executeUpdate();
         } catch (SQLException e) {
-            throw new RuntimeException("Failed to delete account: " + e.getMessage(), e);
+            throw new DatabaseOperationException("Failed to delete the account.", e);
         }
     }
 }

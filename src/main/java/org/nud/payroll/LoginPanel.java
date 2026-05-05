@@ -139,12 +139,13 @@ class LoginPanel extends JPanel {
             errorLabel.setText("⚠  Username and password are required.");
             return;
         }
-        User account = service.authenticate(user, pass);
-        if (account == null) {
+        java.util.Optional<User> accountOpt = service.authenticate(user, pass);
+        if (accountOpt.isEmpty()) {
             errorLabel.setText("⚠  Invalid username or password.");
             passwordField.setText("");
             return;
         }
+        User account = accountOpt.get();
         errorLabel.setText("");
         usernameField.setText("");
         passwordField.setText("");

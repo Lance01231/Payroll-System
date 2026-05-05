@@ -26,7 +26,6 @@ public class AttendanceRepository {
     public static void clockIn(String employeeId, LocalDate date, double timeIn) {
         String sql = "INSERT INTO ATTENDANCE (employee_id, record_date, time_in) VALUES (?, ?, ?) " +
                      "ON CONFLICT(employee_id, record_date) DO NOTHING";
-        // Wait, H2 might not support ON CONFLICT. H2 uses MERGE or INSERT IGNORE depending on mode.
         // A safer way is to check if it exists first, or catch the constraint violation.
         String checkSql = "SELECT 1 FROM ATTENDANCE WHERE employee_id = ? AND record_date = ?";
         String insertSql = "INSERT INTO ATTENDANCE (employee_id, record_date, time_in) VALUES (?, ?, ?)";
@@ -111,7 +110,8 @@ public class AttendanceRepository {
      * FOR DEBUGGING / PRESENTATION: Injects 15 days of perfect attendance (8AM to 5PM).
      */
     public static void generateMockAttendance(String employeeId) {
-        String sql = "MERGE INTO ATTENDANCE (employee_id, record_date, time_in, time_out) KEY(employee_id, record_date) VALUES (?, ?, ?, ?)";
+        String sql = "INSERT INTO ATTENDANCE (employee_id, record_date, time_in, time_out) VALUES (?, ?, ?, ?) " +
+                     "ON DUPLICATE KEY UPDATE time_in = VALUES(time_in), time_out = VALUES(time_out)";
         LocalDate start = LocalDate.now().minusDays(14); // 15 days total including today
 
         try (Connection conn = DatabaseManager.getConnection();

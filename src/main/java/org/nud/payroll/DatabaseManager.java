@@ -6,20 +6,19 @@ import java.sql.SQLException;
 import java.sql.Statement;
 
 /**
- * Meet the DatabaseManager! It sets up our handy little in-memory H2 database.
+ * Meet the DatabaseManager! It sets up our persistent MySQL database.
  *
- * Everything is stored in RAM, which means it vanishes when you close the app.
- * No messing around with files or external servers!
- * Just call init() when starting the app, and you're good to go!
+ * All data is saved safely to your local MySQL server. 
+ * Be sure to update the USER and PASS below to match your MySQL credentials!
  */
 public class DatabaseManager {
 
-    /** JDBC URL for a named, shared, purely in-memory H2 database. */
+    /** JDBC URL for your local MySQL server. */
     private static final String JDBC_URL =
-            "jdbc:h2:mem:payrolldb;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=TRUE";
+            "jdbc:mysql://localhost:3306/payrolldb?createDatabaseIfNotExist=true&allowPublicKeyRetrieval=true&useSSL=false";
 
-    private static final String USER = "sa";
-    private static final String PASS = "";
+    private static final String USER = "root";
+    private static final String PASS = "maskelz1905_"; // <-- Update this to your MySQL password
 
     private DatabaseManager() {}
 
@@ -79,9 +78,8 @@ public class DatabaseManager {
 
             // Let's make sure our main admin can always log in!
             stmt.executeUpdate(
-                    "MERGE INTO ACCOUNTS (username, password, role, linked_employee_id)"
-                            + " KEY(username)"
-                            + " VALUES ('admin', 'admin123', 'ADMIN', NULL)");
+                    "INSERT IGNORE INTO ACCOUNTS (username, password, role, linked_employee_id)"
+                            + " VALUES ('admin', '240be518fabd2724ddb6f04eeb1da5967448d7e831c08c8fa822809f74c720a9', 'ADMIN', NULL)");
 
         } catch (SQLException e) {
             throw new RuntimeException("Failed to initialise in-memory database: " + e.getMessage(), e);
