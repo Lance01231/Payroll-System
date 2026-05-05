@@ -5,7 +5,9 @@ import java.awt.*;
 import java.awt.event.*;
 
 /**
- * Employee dashboard — dark sidebar navigation with Timekeeping, OT/Leave, and Payslip panels.
+ * Welcome to the EmployeePanel! This is the main hub for employees when they log in.
+ * It's got a nice dark theme and a sidebar to navigate between Timekeeping, 
+ * applying for OT or Leave, and viewing their hard-earned Payslips.
  */
 class EmployeePanel extends JPanel {
 
@@ -79,7 +81,8 @@ class EmployeePanel extends JPanel {
         navigate(NAV_TK);
     }
 
-    // ── Top bar ───────────────────────────────────────────────────────────
+    // --- Let's build the Top Bar! ---
+    // This is the header that shows the employee's name and the logout button.
     private JPanel buildTopBar() {
         JPanel bar = new JPanel(new BorderLayout());
         bar.setBackground(PayrollSystem.C_NAV_BAR);
@@ -102,7 +105,8 @@ class EmployeePanel extends JPanel {
         return bar;
     }
 
-    // ── Sidebar ───────────────────────────────────────────────────────────
+    // --- Here's the Sidebar ---
+    // Contains navigation links for the employee to switch between different views.
     private JPanel buildSidebar() {
         JPanel sidebar = new JPanel();
         sidebar.setBackground(PayrollSystem.C_NAV);
@@ -144,7 +148,8 @@ class EmployeePanel extends JPanel {
 
     private void navigate(String card) { contentLayout.show(contentPanel, card); }
 
-    // ── Timekeeping panel ─────────────────────────────────────────────────
+    // --- Timekeeping Panel ---
+    // This is where employees can see their recent punches and clock out for the day.
     private JScrollPane buildTimekeepingPanel() {
         JPanel card = PayrollSystem.surface(32, 24);
         card.setLayout(new BoxLayout(card, BoxLayout.Y_AXIS));
@@ -237,7 +242,8 @@ class EmployeePanel extends JPanel {
         }
     }
 
-    // ── OT / Leave / Loans panel ──────────────────────────────────────────
+    // --- OT / Leave / Loans Panel ---
+    // A simple form for employees to file their leaves, extra hours, or loan deductions.
     private JScrollPane buildLeavePanel() {
         JPanel card = PayrollSystem.surface(40, 32);
         card.setLayout(new BoxLayout(card, BoxLayout.Y_AXIS));
@@ -335,7 +341,8 @@ class EmployeePanel extends JPanel {
         olMsg.setText(String.format("✔  Submitted! Sent to Admin for approval."));
     }
 
-    // ── Payslip panel ─────────────────────────────────────────────────────
+    // --- Payslip Panel ---
+    // The most important part! Generates and displays the detailed breakdown of their salary.
     private JPanel buildPayslipPanel() {
         payslipContainer.setBackground(PayrollSystem.C_SURFACE);
 

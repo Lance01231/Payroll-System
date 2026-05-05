@@ -1,4 +1,6 @@
 {
+  "window.newWindowDimensions": "fullscreen",
+  "window.restoreFullscreen": true,
   "search.exclude": { "**/target": true },
   "files.watcherExclude": { "**/target": true },
   "errorLens.enabledDiagnosticLevels": ["error", "warning"],

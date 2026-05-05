@@ -6,16 +6,13 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 
 /**
- * SQL-backed repository for user accounts.
- *
- * <p>All data is stored in the H2 in-memory ACCOUNTS table managed by
- * {@link DatabaseManager}. No file I/O; no external server.
+ * The AccountRepository handles all the database operations for user accounts!
+ * We're using an in-memory H2 database here, so no external servers or files needed.
+ * It's all kept in RAM for simplicity and speed.
  */
 public class AccountRepository {
 
-    // ---------------------------------------------------------------
-    // Write
-    // ---------------------------------------------------------------
+    // --- Let's add some data! ---
 
     /**
      * Inserts a new EMPLOYEE-role account linked to the given employee ID.
@@ -39,9 +36,7 @@ public class AccountRepository {
         }
     }
 
-    // ---------------------------------------------------------------
-    // Read
-    // ---------------------------------------------------------------
+    // --- Time to read some data! ---
 
     /**
      * Authenticates a user by username and password.
@@ -68,9 +63,7 @@ public class AccountRepository {
         return null;
     }
 
-    // ---------------------------------------------------------------
-    // Delete
-    // ---------------------------------------------------------------
+    // --- Clean up time (Delete) ---
 
     public static void deleteByEmployeeId(String employeeId) {
         String sql = "DELETE FROM ACCOUNTS WHERE linked_employee_id = ?";

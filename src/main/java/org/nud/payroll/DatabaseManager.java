@@ -6,21 +6,11 @@ import java.sql.SQLException;
 import java.sql.Statement;
 
 /**
- * Bootstraps the H2 in-memory SQL database.
+ * Meet the DatabaseManager! It sets up our handy little in-memory H2 database.
  *
- * <p>H2 runs entirely inside the JVM — no files are written to disk and no
- * external server is required. All data lives in RAM and disappears when the
- * program exits, satisfying the "no file I/O / no external database" rule.
- *
- * <p>Call {@code DatabaseManager.init()} once at startup (from
- * {@code PayrollSystem.main}). Every repository then obtains its connection
- * from {@code DatabaseManager.getConnection()}.
- *
- * <p>Schema:
- * <ul>
- *   <li>{@code ACCOUNTS} — stores user credentials and roles.
- *   <li>{@code EMPLOYEES} — stores employee master records.
- * </ul>
+ * Everything is stored in RAM, which means it vanishes when you close the app.
+ * No messing around with files or external servers!
+ * Just call init() when starting the app, and you're good to go!
  */
 public class DatabaseManager {
 
@@ -41,7 +31,7 @@ public class DatabaseManager {
         try (Connection conn = getConnection();
                 Statement stmt = conn.createStatement()) {
 
-            // --- ACCOUNTS table ---
+            // First up, the ACCOUNTS table to store who can log in!
             stmt.executeUpdate(
                     "CREATE TABLE IF NOT EXISTS ACCOUNTS ("
                             + "  username         VARCHAR(50)  PRIMARY KEY,"
@@ -50,7 +40,7 @@ public class DatabaseManager {
                             + "  linked_employee_id VARCHAR(20)"
                             + ")");
 
-            // --- EMPLOYEES table ---
+            // Next, the EMPLOYEES table. Holds all the important staff info!
             stmt.executeUpdate(
                     "CREATE TABLE IF NOT EXISTS EMPLOYEES ("
                             + "  employee_id   VARCHAR(20)  PRIMARY KEY,"
@@ -65,7 +55,7 @@ public class DatabaseManager {
                             + "  loan_balance  DOUBLE       DEFAULT 0"
                             + ")");
 
-            // --- ATTENDANCE table ---
+            // The ATTENDANCE table keeps track of when people clock in and out.
             stmt.executeUpdate(
                     "CREATE TABLE IF NOT EXISTS ATTENDANCE ("
                             + "  id            INT AUTO_INCREMENT PRIMARY KEY,"
@@ -76,7 +66,7 @@ public class DatabaseManager {
                             + "  UNIQUE(employee_id, record_date)"
                             + ")");
 
-            // --- SUBMISSIONS table ---
+            // Finally, the SUBMISSIONS table for leaves, OT, and loans.
             stmt.executeUpdate(
                     "CREATE TABLE IF NOT EXISTS SUBMISSIONS ("
                             + "  id            INT AUTO_INCREMENT PRIMARY KEY,"
@@ -87,7 +77,7 @@ public class DatabaseManager {
                             + "  status        VARCHAR(20)  DEFAULT 'PENDING'"
                             + ")");
 
-            // --- Seed the hardcoded ADMIN account (ignore if already exists) ---
+            // Let's make sure our main admin can always log in!
             stmt.executeUpdate(
                     "MERGE INTO ACCOUNTS (username, password, role, linked_employee_id)"
                             + " KEY(username)"

@@ -4,7 +4,9 @@ import javax.swing.*;
 import java.awt.*;
 
 /**
- * Dark-mode login screen — full-window gradient background with centered glass card.
+ * The LoginPanel is the front door of our application!
+ * We've designed it to look sleek with a dark mode gradient background 
+ * and a nice centered glass-like card for the sign-in form.
  */
 class LoginPanel extends JPanel {
 
@@ -24,7 +26,7 @@ class LoginPanel extends JPanel {
         add(buildCard(), gbc);
     }
 
-    /** Paints a subtle radial gradient background behind the card. */
+    /** Let's paint a subtle radial gradient background to make it look modern and cool. */
     @Override
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
@@ -50,7 +52,7 @@ class LoginPanel extends JPanel {
                 BorderFactory.createEmptyBorder(48, 56, 48, 56)));
         card.setPreferredSize(new Dimension(440, 520));
 
-        // ── Logo / branding ──────────────────────────────────────────────
+        // --- Logo & Branding ---
         JLabel dot = PayrollSystem.lbl("●", new Font("Segoe UI", Font.BOLD, 28), PayrollSystem.C_PRIMARY);
         dot.setAlignmentX(CENTER_ALIGNMENT);
 
@@ -60,22 +62,22 @@ class LoginPanel extends JPanel {
         JLabel tagline = PayrollSystem.lbl("Employee Payroll System", PayrollSystem.F_BODY, PayrollSystem.C_MUTED);
         tagline.setAlignmentX(CENTER_ALIGNMENT);
 
-        // ── Divider ──────────────────────────────────────────────────────
+        // --- A neat little divider ---
         JSeparator divider = PayrollSystem.sep();
         divider.setAlignmentX(CENTER_ALIGNMENT);
 
-        // ── Form title ───────────────────────────────────────────────────
+        // --- Form Title ---
         JLabel heading = PayrollSystem.lbl("Sign in to your account", PayrollSystem.F_H2, PayrollSystem.C_TEXT);
         heading.setAlignmentX(CENTER_ALIGNMENT);
 
-        // ── Form fields ──────────────────────────────────────────────────
+        // --- The actual input fields for username and password ---
         JPanel userRow = fieldRow("Username", usernameField);
         JPanel passRow = fieldRow("Password", passwordField);
 
-        // ── Error label ──────────────────────────────────────────────────
+        // --- Where we show error messages (if any) ---
         errorLabel.setAlignmentX(CENTER_ALIGNMENT);
 
-        // ── Login button ─────────────────────────────────────────────────
+        // --- The big friendly Sign In button ---
         JButton loginBtn = PayrollSystem.makeBtn("Sign In", PayrollSystem.C_PRIMARY);
         loginBtn.setMaximumSize(new Dimension(Integer.MAX_VALUE, 44));
         loginBtn.setAlignmentX(CENTER_ALIGNMENT);
@@ -83,12 +85,12 @@ class LoginPanel extends JPanel {
         loginBtn.addActionListener(e -> doLogin());
         passwordField.addActionListener(e -> doLogin());
 
-        // ── Hint ─────────────────────────────────────────────────────────
+        // --- Just a helpful hint for our testers ---
         JLabel hint = PayrollSystem.lbl("Default admin: admin / admin123",
                 PayrollSystem.F_SMALL, PayrollSystem.C_MUTED);
         hint.setAlignmentX(CENTER_ALIGNMENT);
 
-        // ── Assemble ─────────────────────────────────────────────────────
+        // --- Putting it all together into the card ---
         card.add(dot);
         card.add(Box.createVerticalStrut(8));
         card.add(company);

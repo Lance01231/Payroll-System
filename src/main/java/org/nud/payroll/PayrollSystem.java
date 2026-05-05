@@ -5,12 +5,13 @@ import javax.swing.*;
 import java.awt.*;
 
 /**
- * Main JFrame — boots FlatLaf Dark, manages CardLayout navigation,
- * and provides the shared dark-mode design system.
+ * Meet the PayrollSystem class! This is the main window (JFrame) of our app.
+ * It sets up the FlatLaf Dark theme, manages navigation between our different screens (Login, Admin, Employee),
+ * and holds all the shared colors and fonts so our app looks consistent and beautiful everywhere.
  */
 public class PayrollSystem extends JFrame {
 
-    // ── Dark mode palette (GitHub-dark-inspired) ──────────────────────────
+    // --- Our gorgeous Dark Mode Color Palette (inspired by GitHub's dark theme) ---
     static final Color C_BG       = new Color(13,  17,  23);   // #0D1117 deepest bg
     static final Color C_SURFACE  = new Color(22,  27,  34);   // #161B22 cards
     static final Color C_SURFACE2 = new Color(33,  38,  45);   // #21262D elevated
@@ -30,7 +31,7 @@ public class PayrollSystem extends JFrame {
     static final Color C_CARD  = C_SURFACE;
     static final Color C_NAV_BAR = C_SURFACE;   // top header strip
 
-    // ── Typography ────────────────────────────────────────────────────────
+    // --- Typography setup for the whole app ---
     static final Font F_TITLE = new Font("Segoe UI", Font.BOLD,  26);
     static final Font F_H2    = new Font("Segoe UI", Font.BOLD,  16);
     static final Font F_LABEL = new Font("Segoe UI", Font.BOLD,  13);
@@ -38,12 +39,12 @@ public class PayrollSystem extends JFrame {
     static final Font F_SMALL = new Font("Segoe UI", Font.PLAIN, 11);
     static final Font F_MONO  = new Font("JetBrains Mono,Consolas,Monospaced", Font.PLAIN, 13);
 
-    // ── Card keys ─────────────────────────────────────────────────────────
+    // --- Names for our navigation cards ---
     static final String CARD_LOGIN    = "LOGIN";
     static final String CARD_ADMIN    = "ADMIN";
     static final String CARD_EMPLOYEE = "EMPLOYEE";
 
-    // ── State ─────────────────────────────────────────────────────────────
+    // --- Keeping track of our application state and panels ---
     private final CardLayout    cardLayout    = new CardLayout();
     private final JPanel        root          = new JPanel(cardLayout);
     private final PayrollService service;
@@ -70,12 +71,12 @@ public class PayrollSystem extends JFrame {
         setContentPane(root);
     }
 
-    // ── Navigation ────────────────────────────────────────────────────────
+    // --- Handy methods to move between screens ---
     void goLogin()                     { cardLayout.show(root, CARD_LOGIN); }
     void goAdmin()                     { adminPanel.refresh(); cardLayout.show(root, CARD_ADMIN); }
     void goEmployee(String employeeId) { employeePanel.load(employeeId); cardLayout.show(root, CARD_EMPLOYEE); }
 
-    // ── Shared UI factory helpers ─────────────────────────────────────────
+    // --- UI Factory Helpers: These make building consistent UI elements a breeze! ---
 
     static JButton makeBtn(String text, Color bg) {
         JButton b = new JButton(text);
@@ -140,7 +141,7 @@ public class PayrollSystem extends JFrame {
         return p;
     }
 
-    /** Horizontal separator line. */
+    /** Draws a nice horizontal separator line. */
     static JSeparator sep() {
         JSeparator s = new JSeparator();
         s.setForeground(C_BORDER);
@@ -149,8 +150,8 @@ public class PayrollSystem extends JFrame {
     }
 
     /**
-     * Parses a time string without a Scanner.
-     * Returns 0.0 = absent, decimal hours = valid, null = invalid.
+     * A handy little parser to figure out time strings without needing a heavy Scanner.
+     * It returns 0.0 for absent, a decimal for valid hours, or null if it's confused.
      */
     static Double parseTime(String raw) {
         if (raw == null || raw.isBlank()) return 0.0;
@@ -172,7 +173,7 @@ public class PayrollSystem extends JFrame {
         return null;
     }
 
-    // ── Entry point ───────────────────────────────────────────────────────
+    // --- The starting point of our application! ---
     public static void main(String[] args) {
         DatabaseManager.init();
 

@@ -7,21 +7,25 @@ import java.awt.event.*;
 import java.util.List;
 
 /**
- * Admin dashboard — dark sidebar navigation with Add Employee and View Records panels.
+ * AdminPanel provides the administrative dashboard interface for the Payroll System.
+ * It features a dark-themed sidebar navigation and manages three primary views:
+ * 1. Add Employee: Form for registering new employees with their details and credentials.
+ * 2. View All Records: Tabular view of existing employees with management actions (refresh, delete, mock attendance).
+ * 3. Approvals: Interface for administrators to review, approve, or reject employee payroll submissions.
  */
 class AdminPanel extends JPanel {
 
     private final PayrollSystem  frame;
     private final PayrollService service;
 
-    // ── Sidebar nav ───────────────────────────────────────────────────────
+    // --- Sidebar Navigation Constants ---
     private static final String NAV_ADD  = "ADD";
     private static final String NAV_VIEW = "VIEW";
     private static final String NAV_APPR = "APPR";
     private final CardLayout contentLayout = new CardLayout();
     private final JPanel     contentPanel  = new JPanel(contentLayout);
 
-    // ── Add Employee fields ───────────────────────────────────────────────
+    // --- Employee Registration Form Components ---
     private final JTextField  idField     = PayrollSystem.styledField(20);
     private final JTextField  nameField   = PayrollSystem.styledField(20);
     private final JComboBox<String> typeCombo = new JComboBox<>(
@@ -38,14 +42,14 @@ class AdminPanel extends JPanel {
     private final JTextField  initLoanField = PayrollSystem.styledField(10);
     private final JLabel         formMsg        = PayrollSystem.lbl("", PayrollSystem.F_SMALL, PayrollSystem.C_DANGER);
 
-    // ── View All table ────────────────────────────────────────────────────
+    // --- Employee Records Table Components ---
     private final String[] COLS = {"Employee ID", "Name", "Type", "Basic Salary", "Cut-off"};
     private final DefaultTableModel tableModel = new DefaultTableModel(COLS, 0) {
         @Override public boolean isCellEditable(int r, int c) { return false; }
     };
     private final JTable table = new JTable(tableModel);
 
-    // ── Approvals table ───────────────────────────────────────────────────
+    // --- Payroll Approvals Table Components ---
     private final String[] APPR_COLS = {"Submission ID", "Employee ID", "Leave Days", "OT Hours", "Loans"};
     private final DefaultTableModel approvalsModel = new DefaultTableModel(APPR_COLS, 0) {
         @Override public boolean isCellEditable(int r, int c) { return false; }
@@ -87,7 +91,7 @@ class AdminPanel extends JPanel {
         }
     }
 
-    // ── Top bar ───────────────────────────────────────────────────────────
+    // --- Header / Top Navigation Bar ---
     private JPanel buildTopBar() {
         JPanel bar = new JPanel(new BorderLayout());
         bar.setBackground(PayrollSystem.C_NAV_BAR);
@@ -112,7 +116,7 @@ class AdminPanel extends JPanel {
         return bar;
     }
 
-    // ── Sidebar ───────────────────────────────────────────────────────────
+    // --- Sidebar Menu Construction ---
     private JPanel buildSidebar() {
         JPanel sidebar = new JPanel();
         sidebar.setBackground(PayrollSystem.C_NAV);
@@ -161,7 +165,7 @@ class AdminPanel extends JPanel {
 
     private void navigate(String card) { contentLayout.show(contentPanel, card); }
 
-    // ── Add Employee panel ────────────────────────────────────────────────
+    // --- Employee Registration Panel Construction ---
     private JScrollPane buildAddPanel() {
         JPanel card = PayrollSystem.surface(40, 32);
         card.setLayout(new BoxLayout(card, BoxLayout.Y_AXIS));
@@ -338,7 +342,7 @@ class AdminPanel extends JPanel {
         }
     }
 
-    // ── View All Records panel ────────────────────────────────────────────
+    // --- Employee Records Panel Construction ---
     private JPanel buildViewPanel() {
         JPanel panel = new JPanel(new BorderLayout(0, 14));
         panel.setBackground(PayrollSystem.C_BG);
@@ -418,7 +422,7 @@ class AdminPanel extends JPanel {
         return panel;
     }
 
-    // ── Approvals panel ───────────────────────────────────────────────────
+    // --- Payroll Approvals Panel Construction ---
     private JPanel buildApprovalsPanel() {
         JPanel panel = new JPanel(new BorderLayout(0, 14));
         panel.setBackground(PayrollSystem.C_BG);
