@@ -380,7 +380,7 @@ class AdminPanel extends JPanel {
         } catch (Exception ex) {
             formMsg.setForeground(PayrollSystem.C_DANGER);
             String errorMsg = ex.getMessage();
-            if (errorMsg != null && errorMsg.contains("Unique index or primary key violation")) {
+            if (errorMsg != null && (errorMsg.contains("Duplicate entry") || errorMsg.contains("PRIMARY"))) {
                 formMsg.setText("⚠  Error: Employee ID or Username already exists.");
             } else {
                 formMsg.setText("⚠  Error saving employee.");

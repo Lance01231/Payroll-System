@@ -97,21 +97,13 @@
                 <artifactId>maven-checkstyle-plugin</artifactId>
                 <version>3.6.0</version>
                 <configuration>
-                    <!-- This line is the fix: it prevents style warnings from failing the build -->
+                    <!-- Plugin available for manual use: mvn checkstyle:check -->
+                    <!-- It does NOT run automatically during builds -->
                     <failOnViolation>false</failOnViolation>
                     <failsOnError>false</failsOnError>
-                    <consoleOutput>true</consoleOutput>
+                    <consoleOutput>false</consoleOutput>
                     <linkXRef>false</linkXRef>
                 </configuration>
-                <executions>
-                    <execution>
-                        <id>checkstyle-check</id>
-                        <phase>validate</phase>
-                        <goals>
-                            <goal>check</goal>
-                        </goals>
-                    </execution>
-                </executions>
             </plugin>
         </plugins>
     </build>

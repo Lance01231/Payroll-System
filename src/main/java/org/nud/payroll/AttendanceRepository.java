@@ -24,9 +24,7 @@ public class AttendanceRepository {
      * If they try to clock in twice on the same day, we just ignore the second attempt!
      */
     public static void clockIn(String employeeId, LocalDate date, double timeIn) {
-        String sql = "INSERT INTO ATTENDANCE (employee_id, record_date, time_in) VALUES (?, ?, ?) "
-                + "ON CONFLICT(employee_id, record_date) DO NOTHING";
-        // A safer way is to check if it exists first, or catch the constraint violation.
+        // Check first, then insert — avoids duplicate clock-in on the same day.
         String checkSql = "SELECT 1 FROM ATTENDANCE WHERE employee_id = ? AND record_date = ?";
         String insertSql = "INSERT INTO ATTENDANCE (employee_id, record_date, time_in) VALUES (?, ?, ?)";
 
