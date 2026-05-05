@@ -1,5 +1,5 @@
 # clone the project
-git clone https://github.com/sev-sthr/payroll-system
+git clone https://github.com/jrsmDev/Payroll-System
 cd payroll-system
 
 # compile
