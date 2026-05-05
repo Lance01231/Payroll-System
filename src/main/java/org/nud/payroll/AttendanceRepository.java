@@ -24,8 +24,8 @@ public class AttendanceRepository {
      * If they try to clock in twice on the same day, we just ignore the second attempt!
      */
     public static void clockIn(String employeeId, LocalDate date, double timeIn) {
-        String sql = "INSERT INTO ATTENDANCE (employee_id, record_date, time_in) VALUES (?, ?, ?) " +
-                     "ON CONFLICT(employee_id, record_date) DO NOTHING";
+        String sql = "INSERT INTO ATTENDANCE (employee_id, record_date, time_in) VALUES (?, ?, ?) "
+                + "ON CONFLICT(employee_id, record_date) DO NOTHING";
         // A safer way is to check if it exists first, or catch the constraint violation.
         String checkSql = "SELECT 1 FROM ATTENDANCE WHERE employee_id = ? AND record_date = ?";
         String insertSql = "INSERT INTO ATTENDANCE (employee_id, record_date, time_in) VALUES (?, ?, ?)";
@@ -53,7 +53,7 @@ public class AttendanceRepository {
 
     /**
      * Logs the time an employee leaves for the day.
-     * It updates their existing clock-in record. If they forgot to clock in this morning, 
+     * It updates their existing clock-in record. If they forgot to clock in this morning,
      * we still save their clock-out time so the HR team can investigate later!
      */
     public static void clockOut(String employeeId, LocalDate date, double timeOut) {
@@ -66,7 +66,7 @@ public class AttendanceRepository {
                 update.setString(2, employeeId);
                 update.setDate(3, Date.valueOf(date));
                 int rows = update.executeUpdate();
-                
+
                 if (rows == 0) { // If they forgot to clock in but are clocking out
                     try (PreparedStatement insert = conn.prepareStatement(insertSql)) {
                         insert.setString(1, employeeId);
@@ -88,10 +88,11 @@ public class AttendanceRepository {
      */
     public static List<AttendanceRecord> getAttendance(String employeeId) {
         List<AttendanceRecord> records = new ArrayList<>();
-        String sql = "SELECT record_date, time_in, time_out FROM ATTENDANCE WHERE employee_id = ? ORDER BY record_date ASC";
-        
+        String sql =
+                "SELECT record_date, time_in, time_out FROM ATTENDANCE WHERE employee_id = ? ORDER BY record_date ASC";
+
         try (Connection conn = DatabaseManager.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
+                PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setString(1, employeeId);
             try (ResultSet rs = ps.executeQuery()) {
                 while (rs.next()) {
@@ -111,12 +112,12 @@ public class AttendanceRepository {
      * FOR DEBUGGING / PRESENTATION: Injects 15 days of perfect attendance (8AM to 5PM).
      */
     public static void generateMockAttendance(String employeeId) {
-        String sql = "INSERT INTO ATTENDANCE (employee_id, record_date, time_in, time_out) VALUES (?, ?, ?, ?) " +
-                     "ON DUPLICATE KEY UPDATE time_in = VALUES(time_in), time_out = VALUES(time_out)";
+        String sql = "INSERT INTO ATTENDANCE (employee_id, record_date, time_in, time_out) VALUES (?, ?, ?, ?) "
+                + "ON DUPLICATE KEY UPDATE time_in = VALUES(time_in), time_out = VALUES(time_out)";
         LocalDate start = LocalDate.now().minusDays(14); // 15 days total including today
 
         try (Connection conn = DatabaseManager.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
+                PreparedStatement ps = conn.prepareStatement(sql)) {
             for (int i = 0; i < 15; i++) {
                 ps.setString(1, employeeId);
                 ps.setDate(2, Date.valueOf(start.plusDays(i)));

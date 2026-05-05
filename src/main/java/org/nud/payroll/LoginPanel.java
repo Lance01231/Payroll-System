@@ -1,28 +1,29 @@
 package org.nud.payroll;
 
-import javax.swing.*;
 import java.awt.*;
+import javax.swing.*;
 
 /**
  * The LoginPanel is the front door of our application!
- * We've designed it to look sleek with a dark mode gradient background 
+ * We've designed it to look sleek with a dark mode gradient background
  * and a nice centered glass-like card for the sign-in form.
  */
 class LoginPanel extends JPanel {
 
-    private final PayrollSystem  frame;
+    private final PayrollSystem frame;
     private final PayrollService service;
-    private final JTextField     usernameField = PayrollSystem.styledField(24);
+    private final JTextField usernameField = PayrollSystem.styledField(24);
     private final JPasswordField passwordField = PayrollSystem.styledPasswordField(24);
-    private final JLabel         errorLabel    = PayrollSystem.lbl("", PayrollSystem.F_SMALL, PayrollSystem.C_DANGER);
+    private final JLabel errorLabel = PayrollSystem.lbl("", PayrollSystem.F_SMALL, PayrollSystem.C_DANGER);
 
     LoginPanel(PayrollSystem frame, PayrollService service) {
-        this.frame   = frame;
+        this.frame = frame;
         this.service = service;
         setBackground(PayrollSystem.C_BG);
         setLayout(new GridBagLayout());
         GridBagConstraints gbc = new GridBagConstraints();
-        gbc.gridx = 0; gbc.gridy = 0;
+        gbc.gridx = 0;
+        gbc.gridy = 0;
         add(buildCard(), gbc);
     }
 
@@ -34,10 +35,11 @@ class LoginPanel extends JPanel {
         g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
         // Subtle blue glow at center
         RadialGradientPaint grad = new RadialGradientPaint(
-                getWidth() / 2f, getHeight() / 2f,
+                getWidth() / 2f,
+                getHeight() / 2f,
                 Math.max(getWidth(), getHeight()) * 0.6f,
-                new float[]{0f, 1f},
-                new Color[]{new Color(30, 55, 100, 80), new Color(13, 17, 23, 0)});
+                new float[] {0f, 1f},
+                new Color[] {new Color(30, 55, 100, 80), new Color(13, 17, 23, 0)});
         g2.setPaint(grad);
         g2.fillRect(0, 0, getWidth(), getHeight());
         g2.dispose();
@@ -86,8 +88,8 @@ class LoginPanel extends JPanel {
         passwordField.addActionListener(e -> doLogin());
 
         // --- Just a helpful hint for our testers ---
-        JLabel hint = PayrollSystem.lbl("Default admin: admin / admin123",
-                PayrollSystem.F_SMALL, PayrollSystem.C_MUTED);
+        JLabel hint =
+                PayrollSystem.lbl("Default admin: admin / admin123", PayrollSystem.F_SMALL, PayrollSystem.C_MUTED);
         hint.setAlignmentX(CENTER_ALIGNMENT);
 
         // --- Putting it all together into the card ---

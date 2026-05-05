@@ -14,12 +14,11 @@ import java.util.Optional;
 public class AccountRepository {
 
     // --- Our handy SQL queries kept in one place ---
-    private static final String SQL_INSERT_ACCOUNT = 
-        "INSERT INTO ACCOUNTS (username, password, role, linked_employee_id) VALUES (?, ?, 'EMPLOYEE', ?)";
-    private static final String SQL_AUTH_ACCOUNT = 
-        "SELECT role, linked_employee_id FROM ACCOUNTS WHERE username = ? AND password = ?";
-    private static final String SQL_DELETE_ACCOUNT = 
-        "DELETE FROM ACCOUNTS WHERE linked_employee_id = ?";
+    private static final String SQL_INSERT_ACCOUNT =
+            "INSERT INTO ACCOUNTS (username, password, role, linked_employee_id) VALUES (?, ?, 'EMPLOYEE', ?)";
+    private static final String SQL_AUTH_ACCOUNT =
+            "SELECT role, linked_employee_id FROM ACCOUNTS WHERE username = ? AND password = ?";
+    private static final String SQL_DELETE_ACCOUNT = "DELETE FROM ACCOUNTS WHERE linked_employee_id = ?";
 
     // --- Let's add some data! ---
     /**
@@ -32,7 +31,7 @@ public class AccountRepository {
      */
     public static void addEmployeeAccount(String username, String password, String linkedEmployeeId) {
         String hashedPassword = SecurityUtils.hashPassword(password);
-        
+
         try (Connection conn = DatabaseManager.getConnection();
                 PreparedStatement ps = conn.prepareStatement(SQL_INSERT_ACCOUNT)) {
             ps.setString(1, username);
@@ -53,7 +52,7 @@ public class AccountRepository {
      */
     public static Optional<User> authenticate(String username, String password) {
         String hashedPassword = SecurityUtils.hashPassword(password);
-        
+
         try (Connection conn = DatabaseManager.getConnection();
                 PreparedStatement ps = conn.prepareStatement(SQL_AUTH_ACCOUNT)) {
             ps.setString(1, username);

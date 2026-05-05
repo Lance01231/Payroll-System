@@ -1,45 +1,45 @@
 package org.nud.payroll;
 
-import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
+import javax.swing.*;
 
 /**
  * Welcome to the EmployeePanel! This is the main hub for employees when they log in.
- * It's got a nice dark theme and a sidebar to navigate between Timekeeping, 
+ * It's got a nice dark theme and a sidebar to navigate between Timekeeping,
  * applying for OT or Leave, and viewing their hard-earned Payslips.
  */
 class EmployeePanel extends JPanel {
 
-    private final PayrollSystem  frame;
+    private final PayrollSystem frame;
     private final PayrollService service;
 
-    private Employee currentEmp      = null;
-    private boolean  timekeepingDone = false;
-    private double   pendingLeave    = 0.0;
-    private double   pendingLoans    = 0.0;
+    private Employee currentEmp = null;
+    private boolean timekeepingDone = false;
+    private double pendingLeave = 0.0;
+    private double pendingLoans = 0.0;
 
     private static final int DAYS = 15;
-    private final JLabel tkMsg  = PayrollSystem.lbl("", PayrollSystem.F_SMALL, PayrollSystem.C_DANGER);
-    private final JLabel olMsg  = PayrollSystem.lbl("", PayrollSystem.F_SMALL, PayrollSystem.C_DANGER);
+    private final JLabel tkMsg = PayrollSystem.lbl("", PayrollSystem.F_SMALL, PayrollSystem.C_DANGER);
+    private final JLabel olMsg = PayrollSystem.lbl("", PayrollSystem.F_SMALL, PayrollSystem.C_DANGER);
     private javax.swing.table.DefaultTableModel attendanceModel;
 
-    private final JTextField  otField = PayrollSystem.styledField(10);
-    private final JTextField  leaveField = PayrollSystem.styledField(10);
-    private final JTextField  loansField = PayrollSystem.styledField(10);
+    private final JTextField otField = PayrollSystem.styledField(10);
+    private final JTextField leaveField = PayrollSystem.styledField(10);
+    private final JTextField loansField = PayrollSystem.styledField(10);
 
     private final JPanel payslipContainer = new JPanel(new BorderLayout());
 
-    private static final String NAV_TK   = "TK";
+    private static final String NAV_TK = "TK";
     private static final String NAV_LEAVE = "LEAVE";
-    private static final String NAV_SLIP  = "SLIP";
+    private static final String NAV_SLIP = "SLIP";
     private final CardLayout contentLayout = new CardLayout();
-    private final JPanel     contentPanel  = new JPanel(contentLayout);
+    private final JPanel contentPanel = new JPanel(contentLayout);
 
     private final JLabel welcomeLabel = PayrollSystem.lbl("", PayrollSystem.F_H2, PayrollSystem.C_TEXT);
 
     EmployeePanel(PayrollSystem frame, PayrollService service) {
-        this.frame   = frame;
+        this.frame = frame;
         this.service = service;
         setBackground(PayrollSystem.C_BG);
         setLayout(new BorderLayout());
@@ -49,26 +49,27 @@ class EmployeePanel extends JPanel {
 
         contentPanel.setBackground(PayrollSystem.C_BG);
         contentPanel.add(buildTimekeepingPanel(), NAV_TK);
-        contentPanel.add(buildLeavePanel(),       NAV_LEAVE);
-        contentPanel.add(buildPayslipPanel(),     NAV_SLIP);
+        contentPanel.add(buildLeavePanel(), NAV_LEAVE);
+        contentPanel.add(buildPayslipPanel(), NAV_SLIP);
         add(contentPanel, BorderLayout.CENTER);
     }
 
     void load(String employeeId) {
-        currentEmp      = service.findEmployee(employeeId);
-        pendingLeave    = 0.0;
-        pendingLoans    = 0.0;
+        currentEmp = service.findEmployee(employeeId);
+        pendingLeave = 0.0;
+        pendingLoans = 0.0;
         leaveField.setText("0");
         otField.setText("0");
         loansField.setText("0");
         payslipContainer.removeAll();
         payslipContainer.revalidate();
         payslipContainer.repaint();
-        tkMsg.setText(""); olMsg.setText("");
+        tkMsg.setText("");
+        olMsg.setText("");
         leaveField.setEnabled(currentEmp != null && currentEmp.hasLeaveBenefits());
         welcomeLabel.setText(currentEmp != null ? "Welcome, " + currentEmp.getEmployeeName() : "");
         refreshAttendanceTable();
-        
+
         SubmissionRepository.PayrollSubmission sub = service.getSubmission(employeeId);
         if (sub != null && sub.status.equals("APPROVED")) {
             olMsg.setForeground(PayrollSystem.C_SUCCESS);
@@ -77,7 +78,7 @@ class EmployeePanel extends JPanel {
             olMsg.setForeground(PayrollSystem.C_WARNING);
             olMsg.setText("⚠  Your payroll submission is PENDING Admin approval.");
         }
-        
+
         navigate(NAV_TK);
     }
 
@@ -116,11 +117,11 @@ class EmployeePanel extends JPanel {
                 BorderFactory.createEmptyBorder(20, 0, 20, 0)));
         sidebar.setPreferredSize(new Dimension(200, 0));
 
-        sidebar.add(navItem("🕐  Timekeeping",       NAV_TK));
+        sidebar.add(navItem("🕐  Timekeeping", NAV_TK));
         sidebar.add(Box.createVerticalStrut(4));
         sidebar.add(navItem("📝  OT / Leave / Loans", NAV_LEAVE));
         sidebar.add(Box.createVerticalStrut(4));
-        sidebar.add(navItem("💰  View Payslip",       NAV_SLIP));
+        sidebar.add(navItem("💰  View Payslip", NAV_SLIP));
         sidebar.add(Box.createVerticalGlue());
         return sidebar;
     }
@@ -135,18 +136,29 @@ class EmployeePanel extends JPanel {
         JLabel lbl = PayrollSystem.lbl(label, PayrollSystem.F_BODY, PayrollSystem.C_MUTED);
         item.add(lbl, BorderLayout.WEST);
         item.addMouseListener(new MouseAdapter() {
-            @Override public void mouseEntered(MouseEvent e) {
-                item.setBackground(PayrollSystem.C_NAV_ITEM); lbl.setForeground(PayrollSystem.C_TEXT);
+            @Override
+            public void mouseEntered(MouseEvent e) {
+                item.setBackground(PayrollSystem.C_NAV_ITEM);
+                lbl.setForeground(PayrollSystem.C_TEXT);
             }
-            @Override public void mouseExited(MouseEvent e) {
-                item.setBackground(PayrollSystem.C_NAV); lbl.setForeground(PayrollSystem.C_MUTED);
+
+            @Override
+            public void mouseExited(MouseEvent e) {
+                item.setBackground(PayrollSystem.C_NAV);
+                lbl.setForeground(PayrollSystem.C_MUTED);
             }
-            @Override public void mouseClicked(MouseEvent e) { navigate(card); }
+
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                navigate(card);
+            }
         });
         return item;
     }
 
-    private void navigate(String card) { contentLayout.show(contentPanel, card); }
+    private void navigate(String card) {
+        contentLayout.show(contentPanel, card);
+    }
 
     // --- Timekeeping Panel ---
     // This is where employees can see their recent punches and clock out for the day.
@@ -162,8 +174,10 @@ class EmployeePanel extends JPanel {
 
         card.add(PayrollSystem.lbl("Daily Attendance", PayrollSystem.F_TITLE, PayrollSystem.C_TEXT));
         card.add(Box.createVerticalStrut(4));
-        card.add(PayrollSystem.lbl("Your Time In was automatically logged when you signed in.",
-                PayrollSystem.F_BODY, PayrollSystem.C_MUTED));
+        card.add(PayrollSystem.lbl(
+                "Your Time In was automatically logged when you signed in.",
+                PayrollSystem.F_BODY,
+                PayrollSystem.C_MUTED));
         card.add(Box.createVerticalStrut(20));
         card.add(PayrollSystem.sep());
         card.add(Box.createVerticalStrut(20));
@@ -178,15 +192,18 @@ class EmployeePanel extends JPanel {
         timeOutBtn.setAlignmentX(LEFT_ALIGNMENT);
         timeOutBtn.addActionListener(e -> clockOutNow());
         card.add(timeOutBtn);
-        
+
         card.add(Box.createVerticalStrut(30));
         card.add(PayrollSystem.lbl("Recent Punches", PayrollSystem.F_H2, PayrollSystem.C_TEXT));
         card.add(Box.createVerticalStrut(10));
-        
+
         // Attendance Table
         String[] cols = {"Date", "Time In", "Time Out"};
         attendanceModel = new javax.swing.table.DefaultTableModel(cols, 0) {
-            @Override public boolean isCellEditable(int r, int c) { return false; }
+            @Override
+            public boolean isCellEditable(int r, int c) {
+                return false;
+            }
         };
         JTable t = new JTable(attendanceModel);
         t.setBackground(PayrollSystem.C_SURFACE2);
@@ -201,8 +218,8 @@ class EmployeePanel extends JPanel {
         outer.add(card);
         outer.add(Box.createVerticalStrut(30));
 
-        JScrollPane scroll = new JScrollPane(outer, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED,
-                JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+        JScrollPane scroll = new JScrollPane(
+                outer, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
         scroll.setBorder(null);
         scroll.getVerticalScrollBar().setUnitIncrement(16);
         return scroll;
@@ -218,27 +235,34 @@ class EmployeePanel extends JPanel {
         tkMsg.setText("✔  Successfully Clocked Out at " + String.format("%02d:%02d", now.getHour(), now.getMinute()));
         refreshAttendanceTable();
     }
-    
+
     private void refreshAttendanceTable() {
         if (currentEmp == null || attendanceModel == null) return;
         attendanceModel.setRowCount(0);
-        java.util.List<AttendanceRepository.AttendanceRecord> records = service.getAttendance(currentEmp.getEmployeeNumber());
+        java.util.List<AttendanceRepository.AttendanceRecord> records =
+                service.getAttendance(currentEmp.getEmployeeNumber());
         for (AttendanceRepository.AttendanceRecord r : records) {
             String tin = "--";
             if (r.timeIn != null) {
                 int h = (int) r.timeIn.doubleValue();
                 int m = (int) Math.round((r.timeIn % 1) * 60);
-                if (m == 60) { h++; m = 0; }
+                if (m == 60) {
+                    h++;
+                    m = 0;
+                }
                 tin = String.format("%02d:%02d", h, m);
             }
             String tout = "--";
             if (r.timeOut != null) {
                 int h = (int) r.timeOut.doubleValue();
                 int m = (int) Math.round((r.timeOut % 1) * 60);
-                if (m == 60) { h++; m = 0; }
+                if (m == 60) {
+                    h++;
+                    m = 0;
+                }
                 tout = String.format("%02d:%02d", h, m);
             }
-            attendanceModel.addRow(new Object[]{ r.recordDate.toString(), tin, tout });
+            attendanceModel.addRow(new Object[] {r.recordDate.toString(), tin, tout});
         }
     }
 
@@ -256,16 +280,19 @@ class EmployeePanel extends JPanel {
 
         card.add(PayrollSystem.lbl("OT / Leave / Loans", PayrollSystem.F_TITLE, PayrollSystem.C_TEXT));
         card.add(Box.createVerticalStrut(4));
-        card.add(PayrollSystem.lbl("Submit leave and loan deductions for this cutoff period.",
-                PayrollSystem.F_BODY, PayrollSystem.C_MUTED));
+        card.add(PayrollSystem.lbl(
+                "Submit leave and loan deductions for this cutoff period.",
+                PayrollSystem.F_BODY,
+                PayrollSystem.C_MUTED));
         card.add(Box.createVerticalStrut(24));
         card.add(PayrollSystem.sep());
         card.add(Box.createVerticalStrut(24));
 
         // Leave row
-        JLabel leaveLabel = PayrollSystem.lbl("Leave Days to Apply  (0–15)", PayrollSystem.F_LABEL, PayrollSystem.C_TEXT);
-        JLabel leaveHint  = PayrollSystem.lbl("Only applied if your employee type has leave benefits.",
-                PayrollSystem.F_SMALL, PayrollSystem.C_MUTED);
+        JLabel leaveLabel =
+                PayrollSystem.lbl("Leave Days to Apply  (0–15)", PayrollSystem.F_LABEL, PayrollSystem.C_TEXT);
+        JLabel leaveHint = PayrollSystem.lbl(
+                "Only applied if your employee type has leave benefits.", PayrollSystem.F_SMALL, PayrollSystem.C_MUTED);
         leaveLabel.setAlignmentX(LEFT_ALIGNMENT);
         leaveField.setAlignmentX(LEFT_ALIGNMENT);
         leaveField.setMaximumSize(new Dimension(Integer.MAX_VALUE, 44));
@@ -288,7 +315,8 @@ class EmployeePanel extends JPanel {
         card.add(Box.createVerticalStrut(20));
 
         // Loans row
-        JLabel loansLabel = PayrollSystem.lbl("Loan Deduction  (₱0 – ₱100,000)", PayrollSystem.F_LABEL, PayrollSystem.C_TEXT);
+        JLabel loansLabel =
+                PayrollSystem.lbl("Loan Deduction  (₱0 – ₱100,000)", PayrollSystem.F_LABEL, PayrollSystem.C_TEXT);
         loansLabel.setAlignmentX(LEFT_ALIGNMENT);
         loansField.setAlignmentX(LEFT_ALIGNMENT);
         loansField.setMaximumSize(new Dimension(Integer.MAX_VALUE, 44));
@@ -312,8 +340,8 @@ class EmployeePanel extends JPanel {
         outer.add(card);
         outer.add(Box.createVerticalStrut(30));
 
-        JScrollPane scroll = new JScrollPane(outer, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED,
-                JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+        JScrollPane scroll = new JScrollPane(
+                outer, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
         scroll.setBorder(null);
         scroll.getVerticalScrollBar().setUnitIncrement(16);
         return scroll;
@@ -323,16 +351,34 @@ class EmployeePanel extends JPanel {
         olMsg.setForeground(PayrollSystem.C_DANGER);
         double leave = 0.0, ot = 0.0, loans;
         if (currentEmp != null && currentEmp.hasLeaveBenefits()) {
-            try { leave = Double.parseDouble(leaveField.getText().trim()); }
-            catch (NumberFormatException ex) { olMsg.setText("⚠  Leave days must be a number."); return; }
-            if (!InputValidator.isValidLeaveDays(leave)) { olMsg.setText("⚠  Leave days: 0–15."); return; }
+            try {
+                leave = Double.parseDouble(leaveField.getText().trim());
+            } catch (NumberFormatException ex) {
+                olMsg.setText("⚠  Leave days must be a number.");
+                return;
+            }
+            if (!InputValidator.isValidLeaveDays(leave)) {
+                olMsg.setText("⚠  Leave days: 0–15.");
+                return;
+            }
         }
-        try { ot = Double.parseDouble(otField.getText().trim()); }
-        catch (NumberFormatException ex) { olMsg.setText("⚠  OT hours must be a number."); return; }
+        try {
+            ot = Double.parseDouble(otField.getText().trim());
+        } catch (NumberFormatException ex) {
+            olMsg.setText("⚠  OT hours must be a number.");
+            return;
+        }
 
-        try { loans = Double.parseDouble(loansField.getText().trim()); }
-        catch (NumberFormatException ex) { olMsg.setText("⚠  Loan amount must be a number."); return; }
-        if (!InputValidator.isValidLoans(loans)) { olMsg.setText("⚠  Loans: ₱0–₱100,000."); return; }
+        try {
+            loans = Double.parseDouble(loansField.getText().trim());
+        } catch (NumberFormatException ex) {
+            olMsg.setText("⚠  Loan amount must be a number.");
+            return;
+        }
+        if (!InputValidator.isValidLoans(loans)) {
+            olMsg.setText("⚠  Loans: ₱0–₱100,000.");
+            return;
+        }
 
         pendingLeave = leave;
         pendingLoans = loans;
@@ -366,24 +412,29 @@ class EmployeePanel extends JPanel {
         scroll.setBorder(BorderFactory.createLineBorder(PayrollSystem.C_BORDER));
         scroll.getViewport().setBackground(PayrollSystem.C_SURFACE);
 
-        outer.add(topRow,  BorderLayout.NORTH);
-        outer.add(scroll,  BorderLayout.CENTER);
-        outer.add(btnRow,  BorderLayout.SOUTH);
+        outer.add(topRow, BorderLayout.NORTH);
+        outer.add(scroll, BorderLayout.CENTER);
+        outer.add(btnRow, BorderLayout.SOUTH);
         return outer;
     }
 
     private void generatePayslip() {
         payslipContainer.removeAll();
-        if (currentEmp == null)  { showError("Error: no employee loaded."); return; }
-        
+        if (currentEmp == null) {
+            showError("Error: no employee loaded.");
+            return;
+        }
+
         SubmissionRepository.PayrollSubmission sub = service.getSubmission(currentEmp.getEmployeeNumber());
         if (sub == null || !sub.status.equals("APPROVED")) {
-            showError("⚠ Payslip is locked.\n\nYou must Submit your Timesheet in the OT/Leave tab\nand wait for the Admin to Approve it before generating a payslip.");
+            showError(
+                    "⚠ Payslip is locked.\n\nYou must Submit your Timesheet in the OT/Leave tab\nand wait for the Admin to Approve it before generating a payslip.");
             return;
         }
 
         // Apply attendance from DB to the in-memory object so it calculates correctly
-        java.util.List<AttendanceRepository.AttendanceRecord> records = service.getAttendance(currentEmp.getEmployeeNumber());
+        java.util.List<AttendanceRepository.AttendanceRecord> records =
+                service.getAttendance(currentEmp.getEmployeeNumber());
         int count = records.size();
         double[] ins = new double[count];
         double[] outs = new double[count];
@@ -394,16 +445,16 @@ class EmployeePanel extends JPanel {
         }
         currentEmp.setTimeKeeping(ins, outs);
 
-        double gross    = currentEmp.calculateGrossPay(sub.otHours);
-        double absD     = currentEmp.calculateAbsencesDeduction(sub.leaveDays);
-        double utD      = currentEmp.calculateUndertimeDeduction();
-        double sss      = currentEmp.getSSSContribution();
-        double ph       = currentEmp.getPhilhealthContribution();
-        double pi       = currentEmp.getPagibigContribution();
-        double tax      = currentEmp.getWithholdingTax(gross);
-        double net      = currentEmp.calculateNetPay(sub.leaveDays, sub.otHours, sub.loans);
-        boolean pt      = currentEmp instanceof PartTimeEmployee;
-        double basic    = pt ? currentEmp.getWorkedHours() * currentEmp.getBasicRate() : currentEmp.getBasicRate() / 2.0;
+        double gross = currentEmp.calculateGrossPay(sub.otHours);
+        double absD = currentEmp.calculateAbsencesDeduction(sub.leaveDays);
+        double utD = currentEmp.calculateUndertimeDeduction();
+        double sss = currentEmp.getSSSContribution();
+        double ph = currentEmp.getPhilhealthContribution();
+        double pi = currentEmp.getPagibigContribution();
+        double tax = currentEmp.getWithholdingTax(gross);
+        double net = currentEmp.calculateNetPay(sub.leaveDays, sub.otHours, sub.loans);
+        boolean pt = currentEmp instanceof PartTimeEmployee;
+        double basic = pt ? currentEmp.getWorkedHours() * currentEmp.getBasicRate() : currentEmp.getBasicRate() / 2.0;
 
         JPanel grid = new JPanel(new GridLayout(1, 3, 10, 0));
         grid.setBackground(PayrollSystem.C_SURFACE);
@@ -413,7 +464,13 @@ class EmployeePanel extends JPanel {
         JPanel col1 = new JPanel();
         col1.setLayout(new BoxLayout(col1, BoxLayout.Y_AXIS));
         col1.setBackground(PayrollSystem.C_SURFACE);
-        col1.setBorder(BorderFactory.createTitledBorder(BorderFactory.createLineBorder(PayrollSystem.C_BORDER), "Regular and Overtime Pay", javax.swing.border.TitledBorder.CENTER, javax.swing.border.TitledBorder.TOP, PayrollSystem.F_LABEL, PayrollSystem.C_TEXT));
+        col1.setBorder(BorderFactory.createTitledBorder(
+                BorderFactory.createLineBorder(PayrollSystem.C_BORDER),
+                "Regular and Overtime Pay",
+                javax.swing.border.TitledBorder.CENTER,
+                javax.swing.border.TitledBorder.TOP,
+                PayrollSystem.F_LABEL,
+                PayrollSystem.C_TEXT));
         col1.add(payRow("Rate", f(currentEmp.getBasicRate())));
         col1.add(payRow("No of Days", currentEmp.getWorkedHours() > 0 ? f(currentEmp.getWorkedHours() / 8.0) : "0"));
         col1.add(payRow("Regular OT", f(gross - basic)));
@@ -431,7 +488,13 @@ class EmployeePanel extends JPanel {
         JPanel col2 = new JPanel();
         col2.setLayout(new BoxLayout(col2, BoxLayout.Y_AXIS));
         col2.setBackground(PayrollSystem.C_SURFACE);
-        col2.setBorder(BorderFactory.createTitledBorder(BorderFactory.createLineBorder(PayrollSystem.C_BORDER), "Employee Contribution", javax.swing.border.TitledBorder.CENTER, javax.swing.border.TitledBorder.TOP, PayrollSystem.F_LABEL, PayrollSystem.C_TEXT));
+        col2.setBorder(BorderFactory.createTitledBorder(
+                BorderFactory.createLineBorder(PayrollSystem.C_BORDER),
+                "Employee Contribution",
+                javax.swing.border.TitledBorder.CENTER,
+                javax.swing.border.TitledBorder.TOP,
+                PayrollSystem.F_LABEL,
+                PayrollSystem.C_TEXT));
         col2.add(payRow("SSS", f(sss)));
         col2.add(payRow("Phil-Health", f(ph)));
         col2.add(payRow("Withholding Tax", f(tax)));
@@ -450,7 +513,13 @@ class EmployeePanel extends JPanel {
         JPanel col3 = new JPanel();
         col3.setLayout(new BoxLayout(col3, BoxLayout.Y_AXIS));
         col3.setBackground(PayrollSystem.C_SURFACE);
-        col3.setBorder(BorderFactory.createTitledBorder(BorderFactory.createLineBorder(PayrollSystem.C_BORDER), "Employer Contribution", javax.swing.border.TitledBorder.CENTER, javax.swing.border.TitledBorder.TOP, PayrollSystem.F_LABEL, PayrollSystem.C_TEXT));
+        col3.setBorder(BorderFactory.createTitledBorder(
+                BorderFactory.createLineBorder(PayrollSystem.C_BORDER),
+                "Employer Contribution",
+                javax.swing.border.TitledBorder.CENTER,
+                javax.swing.border.TitledBorder.TOP,
+                PayrollSystem.F_LABEL,
+                PayrollSystem.C_TEXT));
         col3.add(payRow("SSS", f(currentEmp.getEmployerSSS())));
         col3.add(payRow("Phil-Health", f(currentEmp.getEmployerPhilHealth())));
         col3.add(payRow("pagbig Fund", f(currentEmp.getEmployerPagIbig())));

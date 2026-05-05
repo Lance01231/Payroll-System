@@ -17,7 +17,8 @@ public class SubmissionRepository {
         public double loans;
         public String status; // PENDING, APPROVED, REJECTED
 
-        public PayrollSubmission(int id, String employeeId, double leaveDays, double otHours, double loans, String status) {
+        public PayrollSubmission(
+                int id, String employeeId, double leaveDays, double otHours, double loans, String status) {
             this.id = id;
             this.employeeId = employeeId;
             this.leaveDays = leaveDays;
@@ -35,8 +36,10 @@ public class SubmissionRepository {
     public static void submitPayroll(String employeeId, double leaveDays, double otHours, double loans) {
         // Find existing to see if we should update or insert
         String checkSql = "SELECT id FROM SUBMISSIONS WHERE employee_id = ?";
-        String updateSql = "UPDATE SUBMISSIONS SET leave_days = ?, ot_hours = ?, loans = ?, status = 'PENDING' WHERE employee_id = ?";
-        String insertSql = "INSERT INTO SUBMISSIONS (employee_id, leave_days, ot_hours, loans, status) VALUES (?, ?, ?, ?, 'PENDING')";
+        String updateSql =
+                "UPDATE SUBMISSIONS SET leave_days = ?, ot_hours = ?, loans = ?, status = 'PENDING' WHERE employee_id = ?";
+        String insertSql =
+                "INSERT INTO SUBMISSIONS (employee_id, leave_days, ot_hours, loans, status) VALUES (?, ?, ?, ?, 'PENDING')";
 
         try (Connection conn = DatabaseManager.getConnection()) {
             boolean exists = false;
@@ -71,7 +74,7 @@ public class SubmissionRepository {
     public static PayrollSubmission getSubmission(String employeeId) {
         String sql = "SELECT id, leave_days, ot_hours, loans, status FROM SUBMISSIONS WHERE employee_id = ?";
         try (Connection conn = DatabaseManager.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
+                PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setString(1, employeeId);
             try (ResultSet rs = ps.executeQuery()) {
                 if (rs.next()) {
@@ -81,8 +84,7 @@ public class SubmissionRepository {
                             rs.getDouble("leave_days"),
                             rs.getDouble("ot_hours"),
                             rs.getDouble("loans"),
-                            rs.getString("status")
-                    );
+                            rs.getString("status"));
                 }
             }
         } catch (SQLException e) {
@@ -93,10 +95,11 @@ public class SubmissionRepository {
 
     public static List<PayrollSubmission> getAllPending() {
         List<PayrollSubmission> list = new ArrayList<>();
-        String sql = "SELECT id, employee_id, leave_days, ot_hours, loans, status FROM SUBMISSIONS WHERE status = 'PENDING'";
+        String sql =
+                "SELECT id, employee_id, leave_days, ot_hours, loans, status FROM SUBMISSIONS WHERE status = 'PENDING'";
         try (Connection conn = DatabaseManager.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql);
-             ResultSet rs = ps.executeQuery()) {
+                PreparedStatement ps = conn.prepareStatement(sql);
+                ResultSet rs = ps.executeQuery()) {
             while (rs.next()) {
                 list.add(new PayrollSubmission(
                         rs.getInt("id"),
@@ -104,8 +107,7 @@ public class SubmissionRepository {
                         rs.getDouble("leave_days"),
                         rs.getDouble("ot_hours"),
                         rs.getDouble("loans"),
-                        rs.getString("status")
-                ));
+                        rs.getString("status")));
             }
         } catch (SQLException e) {
             throw new RuntimeException("Failed to fetch pending submissions: " + e.getMessage(), e);
@@ -116,7 +118,7 @@ public class SubmissionRepository {
     public static void updateStatus(int id, String newStatus) {
         String sql = "UPDATE SUBMISSIONS SET status = ? WHERE id = ?";
         try (Connection conn = DatabaseManager.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
+                PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setString(1, newStatus);
             ps.setInt(2, id);
             ps.executeUpdate();

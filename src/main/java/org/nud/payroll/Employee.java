@@ -20,13 +20,21 @@ public abstract class Employee {
     private final int vacationLeave;
     private final int emergencyLeave;
     private final double loanBalance;
-    
+
     private double workedHours;
     private double undertimeHours;
     private double absentDays;
 
-    public Employee(String employeeNumber, String employeeName, double basicRate, int cutOffPeriod,
-                    String workSchedule, int sickLeave, int vacationLeave, int emergencyLeave, double loanBalance) {
+    public Employee(
+            String employeeNumber,
+            String employeeName,
+            double basicRate,
+            int cutOffPeriod,
+            String workSchedule,
+            int sickLeave,
+            int vacationLeave,
+            int emergencyLeave,
+            double loanBalance) {
         this.employeeName = employeeName;
         this.employeeNumber = employeeNumber;
         this.basicRate = basicRate;
@@ -75,7 +83,7 @@ public abstract class Employee {
     }
 
     /**
-     * The moment of truth! This calculates the final take-home pay by taking the 
+     * The moment of truth! This calculates the final take-home pay by taking the
      * gross pay and subtracting all the nasty deductions (taxes, loans, absences, etc.).
      */
     public double calculateNetPay(double leaveDaysUsed, double filedOtHours, double loansToDeduct) {
@@ -93,13 +101,13 @@ public abstract class Employee {
     }
 
     /**
-     * Calculates the gross pay for the 15-day cutoff period, which includes 
+     * Calculates the gross pay for the 15-day cutoff period, which includes
      * half of their monthly salary plus any approved overtime they worked.
      */
     public double calculateGrossPay(double filedOtHours) {
-        double basicCutoff = basicRate / 2.0; 
+        double basicCutoff = basicRate / 2.0;
         double hourlyRate = getHourlyRate();
-        double overtimePay = filedOtHours * hourlyRate * 1.25; 
+        double overtimePay = filedOtHours * hourlyRate * 1.25;
         return basicCutoff + overtimePay;
     }
 
@@ -123,7 +131,7 @@ public abstract class Employee {
 
     // converts daily rate to hourly rate
     protected double getHourlyRate() {
-        return getDailyRate() / 8.0; 
+        return getDailyRate() / 8.0;
     }
 
     public double getWithholdingTax(double grossForCutoff) {
@@ -144,12 +152,16 @@ public abstract class Employee {
 
     public double getSSSContribution() {
         double msc;
-        if (basicRate < 5000) { msc = 5000; } 
-        else if (basicRate > 35000) { msc = 35000; } 
-        else { msc = Math.floor((basicRate - 250) / 500) * 500 + 500; }
+        if (basicRate < 5000) {
+            msc = 5000;
+        } else if (basicRate > 35000) {
+            msc = 35000;
+        } else {
+            msc = Math.floor((basicRate - 250) / 500) * 500 + 500;
+        }
 
-        double regularSS = Math.min(msc, 20000) * 0.05; 
-        double mpf = Math.max(0, msc - 20000) * 0.05; 
+        double regularSS = Math.min(msc, 20000) * 0.05;
+        double mpf = Math.max(0, msc - 20000) * 0.05;
         return regularSS + mpf;
     }
 
@@ -167,22 +179,68 @@ public abstract class Employee {
         }
     }
 
-    public String getEmployeeName() { return employeeName; }
-    public String getEmployeeNumber() { return employeeNumber; }
-    public double getBasicRate() { return basicRate; }
-    public int getCutOffPeriod() { return cutOffPeriod; }
-    public String getWorkSchedule() { return workSchedule; }
-    public int getSickLeave() { return sickLeave; }
-    public int getVacationLeave() { return vacationLeave; }
-    public int getEmergencyLeave() { return emergencyLeave; }
-    public double getLoanBalance() { return loanBalance; }
-    public double getWorkedHours() { return workedHours; }
-    public double getUndertimeHours() { return undertimeHours; }
-    public double getAbsentDays() { return absentDays; }
-    
+    public String getEmployeeName() {
+        return employeeName;
+    }
+
+    public String getEmployeeNumber() {
+        return employeeNumber;
+    }
+
+    public double getBasicRate() {
+        return basicRate;
+    }
+
+    public int getCutOffPeriod() {
+        return cutOffPeriod;
+    }
+
+    public String getWorkSchedule() {
+        return workSchedule;
+    }
+
+    public int getSickLeave() {
+        return sickLeave;
+    }
+
+    public int getVacationLeave() {
+        return vacationLeave;
+    }
+
+    public int getEmergencyLeave() {
+        return emergencyLeave;
+    }
+
+    public double getLoanBalance() {
+        return loanBalance;
+    }
+
+    public double getWorkedHours() {
+        return workedHours;
+    }
+
+    public double getUndertimeHours() {
+        return undertimeHours;
+    }
+
+    public double getAbsentDays() {
+        return absentDays;
+    }
+
     // Employer Contributions
-    public double getEmployerSSS() { return getSSSContribution() * 2.0; } // Roughly double
-    public double getEmployerPhilHealth() { return getPhilhealthContribution(); } // Employer match 1:1
-    public double getEmployerPagIbig() { return getPagibigContribution(); } // Employer match 1:1
-    public double getEmployerECC() { return 10.0; } // Employee Compensation Commission (Fixed)
+    public double getEmployerSSS() {
+        return getSSSContribution() * 2.0;
+    } // Roughly double
+
+    public double getEmployerPhilHealth() {
+        return getPhilhealthContribution();
+    } // Employer match 1:1
+
+    public double getEmployerPagIbig() {
+        return getPagibigContribution();
+    } // Employer match 1:1
+
+    public double getEmployerECC() {
+        return 10.0;
+    } // Employee Compensation Commission (Fixed)
 }

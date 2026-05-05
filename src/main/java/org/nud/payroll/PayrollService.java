@@ -3,8 +3,8 @@ package org.nud.payroll;
 /**
  * The PayrollService is the brain of the operation!
  *
- * It acts as the middleman between the user interface (the screens you see) 
- * and our database repositories. Whenever someone clicks a button to log in, 
+ * It acts as the middleman between the user interface (the screens you see)
+ * and our database repositories. Whenever someone clicks a button to log in,
  * view a payslip, or clock in, this service does the actual work behind the scenes.
  */
 public class PayrollService {
@@ -31,7 +31,7 @@ public class PayrollService {
     // ---------------------------------------------------------------
 
     /**
-     * Registers a new employee in the system and automatically sets up 
+     * Registers a new employee in the system and automatically sets up
      * a shiny new user account so they can log in to the portal later!
      *
      * @param emp      the constructed Employee object to save

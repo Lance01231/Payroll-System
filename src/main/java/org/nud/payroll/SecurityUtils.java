@@ -10,7 +10,7 @@ public class SecurityUtils {
 
     /**
      * Hashes a password using SHA-256 so we don't store it in plain text.
-     * 
+     *
      * @param password The plain text password to hash
      * @return The hashed password as a hex string
      */

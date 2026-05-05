@@ -8,7 +8,8 @@ package org.nud.payroll;
  */
 public class User {
     public enum Role {
-        ADMIN, EMPLOYEE
+        ADMIN,
+        EMPLOYEE
     }
 
     private final String username;
@@ -24,9 +25,19 @@ public class User {
         this.linkedEmployeeId = linkedEmployeeId;
     }
 
-    public String getUsername() { return username; }
-    public String getPassword() { return password; }
-    public Role getRole() { return role; }
+    public String getUsername() {
+        return username;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public Role getRole() {
+        return role;
+    }
     /** Returns the employee ID this account is linked to, or null for ADMIN. */
-    public String getLinkedEmployeeId() { return linkedEmployeeId; }
+    public String getLinkedEmployeeId() {
+        return linkedEmployeeId;
+    }
 }

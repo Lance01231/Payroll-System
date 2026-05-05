@@ -45,8 +45,8 @@ public class EmployeeRepository {
             ps.setDouble(10, emp.getLoanBalance());
             ps.executeUpdate();
         } catch (SQLException e) {
-            throw new RuntimeException("Failed to save employee [" + emp.getEmployeeNumber() + "]: "
-                    + e.getMessage(), e);
+            throw new RuntimeException(
+                    "Failed to save employee [" + emp.getEmployeeNumber() + "]: " + e.getMessage(), e);
         }
     }
 
@@ -125,22 +125,22 @@ public class EmployeeRepository {
      * and turns it back into the correct type of Employee object!
      */
     private static Employee buildEmployee(ResultSet rs) throws SQLException {
-        String empId   = rs.getString("employee_id");
+        String empId = rs.getString("employee_id");
         String empName = rs.getString("employee_name");
         String empType = rs.getString("employee_type");
-        double rate    = rs.getDouble("basic_rate");
-        int    cutOff  = rs.getInt("cut_off");
-        String sched   = rs.getString("work_schedule");
-        int sl         = rs.getInt("sick_leave");
-        int vl         = rs.getInt("vacation_leave");
-        int el         = rs.getInt("emergency_leave");
-        double loan    = rs.getDouble("loan_balance");
+        double rate = rs.getDouble("basic_rate");
+        int cutOff = rs.getInt("cut_off");
+        String sched = rs.getString("work_schedule");
+        int sl = rs.getInt("sick_leave");
+        int vl = rs.getInt("vacation_leave");
+        int el = rs.getInt("emergency_leave");
+        double loan = rs.getDouble("loan_balance");
 
         return switch (empType) {
-            case "Regular"      -> new RegularEmployee(empId, empName, rate, cutOff, sched, sl, vl, el, loan);
+            case "Regular" -> new RegularEmployee(empId, empName, rate, cutOff, sched, sl, vl, el, loan);
             case "Probationary" -> new ProbationaryEmployee(empId, empName, rate, cutOff, sched, sl, vl, el, loan);
-            case "Contractual"  -> new ContractualEmployee(empId, empName, rate, cutOff, sched, sl, vl, el, loan);
-            case "Part-time"    -> new PartTimeEmployee(empId, empName, rate, cutOff, sched, sl, vl, el, loan);
+            case "Contractual" -> new ContractualEmployee(empId, empName, rate, cutOff, sched, sl, vl, el, loan);
+            case "Part-time" -> new PartTimeEmployee(empId, empName, rate, cutOff, sched, sl, vl, el, loan);
             default -> throw new IllegalStateException("Unknown employee type in DB: " + empType);
         };
     }
