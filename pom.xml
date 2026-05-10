@@ -33,6 +33,7 @@
                 </configuration>
             </plugin>
 
+            <!-- Run: PAYROLL_DB_PASSWORD=… mvn exec:java   OR   mvn exec:java "-Dexec.jvmArguments=-Dpayroll.db.password=YOURPASSWORD" -->
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>exec-maven-plugin</artifactId>
@@ -119,6 +120,17 @@
             <groupId>com.formdev</groupId>
             <artifactId>flatlaf</artifactId>
             <version>3.4.1</version>
+        </dependency>
+        <!-- BCrypt password hashing (replaces unsalted SHA-256 for new passwords) -->
+        <dependency>
+            <groupId>org.mindrot</groupId>
+            <artifactId>jbcrypt</artifactId>
+            <version>0.4</version>
+        </dependency>
+        <dependency>
+            <groupId>com.zaxxer</groupId>
+            <artifactId>HikariCP</artifactId>
+            <version>6.2.1</version>
         </dependency>
     </dependencies>
 

@@ -73,6 +73,7 @@ public class PayrollSystem extends JFrame {
 
     // --- Handy methods to move between screens ---
     void goLogin() {
+        employeePanel.clearSession();
         cardLayout.show(root, CARD_LOGIN);
     }
 

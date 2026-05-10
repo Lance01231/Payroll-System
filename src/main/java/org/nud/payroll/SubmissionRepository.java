@@ -32,8 +32,15 @@ public class SubmissionRepository {
      * Sends a payroll request to the admin for approval.
      * It starts in a 'PENDING' state. If an employee submits again while one is already pending
      * (or if the last one was rejected), we just update their existing request to keep things clean.
+     *
+     * @return false if an APPROVED submission already exists (must not be overwritten).
      */
-    public static void submitPayroll(String employeeId, double leaveDays, double otHours, double loans) {
+    public static boolean submitPayroll(String employeeId, double leaveDays, double otHours, double loans) {
+        PayrollSubmission existing = getSubmission(employeeId);
+        if (existing != null && "APPROVED".equals(existing.status)) {
+            return false;
+        }
+
         // Find existing to see if we should update or insert
         String checkSql = "SELECT id FROM SUBMISSIONS WHERE employee_id = ?";
         String updateSql =
@@ -69,6 +76,29 @@ public class SubmissionRepository {
         } catch (SQLException e) {
             throw new RuntimeException("Failed to submit payroll: " + e.getMessage(), e);
         }
+        return true;
+    }
+
+    public static PayrollSubmission findById(int submissionId) {
+        String sql = "SELECT id, employee_id, leave_days, ot_hours, loans, status FROM SUBMISSIONS WHERE id = ?";
+        try (Connection conn = DatabaseManager.getConnection();
+                PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, submissionId);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return new PayrollSubmission(
+                            rs.getInt("id"),
+                            rs.getString("employee_id"),
+                            rs.getDouble("leave_days"),
+                            rs.getDouble("ot_hours"),
+                            rs.getDouble("loans"),
+                            rs.getString("status"));
+                }
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException("Failed to fetch submission: " + e.getMessage(), e);
+        }
+        return null;
     }
 
     public static PayrollSubmission getSubmission(String employeeId) {
@@ -116,14 +146,19 @@ public class SubmissionRepository {
     }
 
     public static void updateStatus(int id, String newStatus) {
+        try (Connection conn = DatabaseManager.getConnection()) {
+            updateStatus(conn, id, newStatus);
+        } catch (SQLException e) {
+            throw new RuntimeException("Failed to update status: " + e.getMessage(), e);
+        }
+    }
+
+    public static void updateStatus(Connection conn, int id, String newStatus) throws SQLException {
         String sql = "UPDATE SUBMISSIONS SET status = ? WHERE id = ?";
-        try (Connection conn = DatabaseManager.getConnection();
-                PreparedStatement ps = conn.prepareStatement(sql)) {
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setString(1, newStatus);
             ps.setInt(2, id);
             ps.executeUpdate();
-        } catch (SQLException e) {
-            throw new RuntimeException("Failed to update status: " + e.getMessage(), e);
         }
     }
 }

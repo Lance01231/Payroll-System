@@ -87,11 +87,6 @@ class LoginPanel extends JPanel {
         loginBtn.addActionListener(e -> doLogin());
         passwordField.addActionListener(e -> doLogin());
 
-        // --- Just a helpful hint for our testers ---
-        JLabel hint =
-                PayrollSystem.lbl("Default admin: admin / admin123", PayrollSystem.F_SMALL, PayrollSystem.C_MUTED);
-        hint.setAlignmentX(CENTER_ALIGNMENT);
-
         // --- Putting it all together into the card ---
         card.add(dot);
         card.add(Box.createVerticalStrut(8));
@@ -110,8 +105,6 @@ class LoginPanel extends JPanel {
         card.add(errorLabel);
         card.add(Box.createVerticalStrut(20));
         card.add(loginBtn);
-        card.add(Box.createVerticalStrut(16));
-        card.add(hint);
 
         return card;
     }
@@ -155,10 +148,20 @@ class LoginPanel extends JPanel {
         if (account.getRole() == User.Role.ADMIN) {
             frame.goAdmin();
         } else {
+            String empId = account.getLinkedEmployeeId();
+            java.time.LocalDate today = java.time.LocalDate.now();
             java.time.LocalTime now = java.time.LocalTime.now();
             double currentTime = now.getHour() + (now.getMinute() / 60.0);
-            service.clockIn(account.getLinkedEmployeeId(), java.time.LocalDate.now(), currentTime);
-            frame.goEmployee(account.getLinkedEmployeeId());
+            int decision = JOptionPane.showConfirmDialog(
+                    frame,
+                    "Clock in now and record your attendance for today?",
+                    "Clock in",
+                    JOptionPane.YES_NO_OPTION,
+                    JOptionPane.QUESTION_MESSAGE);
+            if (decision == JOptionPane.YES_OPTION) {
+                service.clockIn(empId, today, currentTime);
+            }
+            frame.goEmployee(empId);
         }
     }
 }

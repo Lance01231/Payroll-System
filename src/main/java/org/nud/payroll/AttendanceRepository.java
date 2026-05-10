@@ -80,9 +80,7 @@ public class AttendanceRepository {
     }
 
     /**
-     * Fetches all attendance records for an employee.
-     * In a real system, you'd filter by cutoff period. For this prototype, we just grab everything
-     * or limit to the last 15 days. We'll grab everything for the prototype.
+     * Fetches all attendance records for an employee (legacy / diagnostics).
      */
     public static List<AttendanceRecord> getAttendance(String employeeId) {
         List<AttendanceRecord> records = new ArrayList<>();
@@ -92,6 +90,32 @@ public class AttendanceRepository {
         try (Connection conn = DatabaseManager.getConnection();
                 PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setString(1, employeeId);
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    LocalDate date = rs.getDate("record_date").toLocalDate();
+                    Double in = rs.getObject("time_in") != null ? rs.getDouble("time_in") : null;
+                    Double out = rs.getObject("time_out") != null ? rs.getDouble("time_out") : null;
+                    records.add(new AttendanceRecord(date, in, out));
+                }
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException("Failed to fetch attendance: " + e.getMessage(), e);
+        }
+        return records;
+    }
+
+    /**
+     * Attendance rows within {@code from}–{@code to} inclusive, ordered by date (for payslip / cutoff views).
+     */
+    public static List<AttendanceRecord> getAttendance(String employeeId, LocalDate from, LocalDate to) {
+        List<AttendanceRecord> records = new ArrayList<>();
+        String sql = "SELECT record_date, time_in, time_out FROM ATTENDANCE WHERE employee_id = ?"
+                + " AND record_date >= ? AND record_date <= ? ORDER BY record_date ASC";
+        try (Connection conn = DatabaseManager.getConnection();
+                PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, employeeId);
+            ps.setDate(2, Date.valueOf(from));
+            ps.setDate(3, Date.valueOf(to));
             try (ResultSet rs = ps.executeQuery()) {
                 while (rs.next()) {
                     LocalDate date = rs.getDate("record_date").toLocalDate();

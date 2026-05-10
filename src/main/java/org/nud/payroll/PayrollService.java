@@ -1,5 +1,11 @@
 package org.nud.payroll;
 
+import java.sql.Connection;
+import java.sql.SQLException;
+import java.time.LocalDate;
+import java.util.List;
+import java.util.Optional;
+
 /**
  * The PayrollService is the brain of the operation!
  *
@@ -74,6 +80,14 @@ public class PayrollService {
         return AttendanceRepository.getAttendance(employeeId);
     }
 
+    /** Attendance for the employee's current calendar cutoff window (matches {@code cut_off} 1 or 2). */
+    public java.util.List<AttendanceRepository.AttendanceRecord> getAttendanceForCurrentPayPeriod(
+            String employeeId, int cutOffPeriod) {
+        java.time.LocalDate from = PayrollPeriod.currentPeriodStart(cutOffPeriod);
+        java.time.LocalDate to = PayrollPeriod.currentPeriodEnd(cutOffPeriod);
+        return AttendanceRepository.getAttendance(employeeId, from, to);
+    }
+
     public void generateMockAttendance(String employeeId) {
         AttendanceRepository.generateMockAttendance(employeeId);
     }
@@ -82,8 +96,9 @@ public class PayrollService {
     // Cut-off Submission (Approval Workflow)
     // ---------------------------------------------------------------
 
-    public void submitPayroll(String employeeId, double leaveDays, double otHours, double loans) {
-        SubmissionRepository.submitPayroll(employeeId, leaveDays, otHours, loans);
+    /** @return false when an APPROVED submission must not be overwritten */
+    public boolean submitPayroll(String employeeId, double leaveDays, double otHours, double loans) {
+        return SubmissionRepository.submitPayroll(employeeId, leaveDays, otHours, loans);
     }
 
     public SubmissionRepository.PayrollSubmission getSubmission(String employeeId) {
@@ -94,8 +109,31 @@ public class PayrollService {
         return SubmissionRepository.getAllPending();
     }
 
-    public void updateSubmissionStatus(int submissionId, String status) {
-        SubmissionRepository.updateStatus(submissionId, status);
+    public void updateSubmissionStatus(int submissionId, String newStatus) {
+        SubmissionRepository.PayrollSubmission sub = SubmissionRepository.findById(submissionId);
+        if (sub == null) {
+            return;
+        }
+        if ("APPROVED".equals(newStatus) && !"APPROVED".equals(sub.status)) {
+            Employee emp = employeeRepo.findById(sub.employeeId);
+            boolean leaveBenefits = emp != null && emp.hasLeaveBenefits();
+            try (Connection conn = DatabaseManager.getConnection()) {
+                conn.setAutoCommit(false);
+                try {
+                    EmployeeRepository.applyApprovedPayroll(
+                            conn, sub.employeeId, sub.leaveDays, sub.loans, leaveBenefits);
+                    SubmissionRepository.updateStatus(conn, submissionId, newStatus);
+                    conn.commit();
+                } catch (Exception e) {
+                    conn.rollback();
+                    throw new DatabaseOperationException("Failed to finalize approval.", e);
+                }
+            } catch (SQLException e) {
+                throw new DatabaseOperationException("Failed to finalize approval.", e);
+            }
+        } else {
+            SubmissionRepository.updateStatus(submissionId, newStatus);
+        }
     }
 
     // ---------------------------------------------------------------
@@ -127,5 +165,66 @@ public class PayrollService {
      */
     public Employee findEmployee(String employeeId) {
         return employeeRepo.findById(employeeId);
+    }
+
+    /**
+     * Computes payslip figures for the employee's current cutoff window using filed leave / OT / loan amounts.
+     * Does not enforce APPROVED status — callers decide (employee UI locks until approved; admin preview uses pending rows).
+     */
+    public Optional<PayslipDetails> computePayslipDetails(
+            String employeeId, double leaveDays, double otHours, double loansDeduction) {
+        Employee emp = employeeRepo.findById(employeeId);
+        if (emp == null) {
+            return Optional.empty();
+        }
+        LocalDate from = PayrollPeriod.currentPeriodStart(emp.getCutOffPeriod());
+        LocalDate to = PayrollPeriod.currentPeriodEnd(emp.getCutOffPeriod());
+        List<AttendanceRepository.AttendanceRecord> records = AttendanceRepository.getAttendance(employeeId, from, to);
+        int count = records.size();
+        double[] ins = new double[count];
+        double[] outs = new double[count];
+        for (int i = 0; i < count; i++) {
+            AttendanceRepository.AttendanceRecord r = records.get(i);
+            ins[i] = r.timeIn != null ? r.timeIn : 0.0;
+            outs[i] = r.timeOut != null ? r.timeOut : 0.0;
+        }
+        emp.setTimeKeeping(ins, outs);
+
+        double gross = emp.calculateGrossPay(otHours);
+        double absD = emp.calculateAbsencesDeduction(leaveDays);
+        double utD = emp.calculateUndertimeDeduction();
+        double sss = emp.getSSSContribution();
+        double ph = emp.getPhilhealthContribution();
+        double pi = emp.getPagibigContribution();
+        double tax = emp.getWithholdingTax(gross);
+        double net = emp.calculateNetPay(leaveDays, otHours, loansDeduction);
+        boolean pt = emp instanceof PartTimeEmployee;
+        double basicPortion = pt ? emp.getWorkedHours() * emp.getBasicRate() : emp.getBasicRate() / 2.0;
+        double workedDays = emp.getWorkedHours() > 0 ? emp.getWorkedHours() / 8.0 : 0;
+
+        return Optional.of(new PayslipDetails(
+                emp.getEmployeeNumber(),
+                emp.getEmployeeName(),
+                from,
+                to,
+                emp.getBasicRate(),
+                workedDays,
+                gross,
+                basicPortion,
+                absD,
+                utD,
+                sss,
+                ph,
+                pi,
+                tax,
+                loansDeduction,
+                net,
+                emp.getEmployerSSS(),
+                emp.getEmployerPhilHealth(),
+                emp.getEmployerPagIbig(),
+                emp.getEmployerECC(),
+                leaveDays,
+                otHours,
+                pt));
     }
 }

@@ -2,28 +2,52 @@ package org.nud.payroll;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Statement;
 
 /**
  * Meet the DatabaseManager! It sets up our persistent MySQL database.
  *
- * All data is saved safely to your local MySQL server.
- * Be sure to update the USER and PASS below to match your MySQL credentials!
+ * <p>Configure MySQL access with environment variables {@code PAYROLL_JDBC_URL}, {@code PAYROLL_DB_USER},
+ * and {@code PAYROLL_DB_PASSWORD}. Password fallback (same precedence): env {@code PAYROLL_DB_PASSWORD}, then JVM
+ * system property {@code payroll.db.password} (useful for {@code mvn exec:java} without exporting env vars).
  */
 public class DatabaseManager {
 
-    /** JDBC URL for your local MySQL server. */
-    private static final String JDBC_URL =
-            "jdbc:mysql://localhost:3306/payrolldb?createDatabaseIfNotExist=true&allowPublicKeyRetrieval=true&useSSL=false";
+    private static final String JDBC_URL = firstNonBlank(
+            System.getenv("PAYROLL_JDBC_URL"),
+            "jdbc:mysql://localhost:3306/payrolldb?createDatabaseIfNotExist=true&allowPublicKeyRetrieval=true&useSSL=false");
 
-    private static final String USER = "root";
-    private static final String PASS = "maskelz1905_"; // <-- Update this to your MySQL password
+    private static final String USER = firstNonBlank(System.getenv("PAYROLL_DB_USER"), "root");
+
+    private static final String PASS = resolveDbPassword();
 
     private DatabaseManager() {}
 
+    private static String resolveDbPassword() {
+        String fromEnv = envOrEmpty("PAYROLL_DB_PASSWORD");
+        if (!fromEnv.isEmpty()) {
+            return fromEnv;
+        }
+        String fromProp = System.getProperty("payroll.db.password");
+        return fromProp != null ? fromProp : "";
+    }
+
+    private static String envOrEmpty(String key) {
+        String v = System.getenv(key);
+        return v != null ? v : "";
+    }
+
+    private static String firstNonBlank(String preferred, String fallback) {
+        if (preferred != null && !preferred.isBlank()) {
+            return preferred.trim();
+        }
+        return fallback;
+    }
+
     /**
-     * Creates tables and seeds the hardcoded ADMIN account.
+     * Creates tables and seeds the ADMIN account when missing.
      * Safe to call multiple times (uses IF NOT EXISTS).
      */
     public static void init() {
@@ -33,7 +57,7 @@ public class DatabaseManager {
             // First up, the ACCOUNTS table to store who can log in!
             stmt.executeUpdate("CREATE TABLE IF NOT EXISTS ACCOUNTS ("
                     + "  username         VARCHAR(50)  PRIMARY KEY,"
-                    + "  password         VARCHAR(100) NOT NULL,"
+                    + "  password         VARCHAR(255) NOT NULL,"
                     + "  role             VARCHAR(10)  NOT NULL,"
                     + "  linked_employee_id VARCHAR(20)"
                     + ")");
@@ -72,18 +96,31 @@ public class DatabaseManager {
                     + "  status        VARCHAR(20)  DEFAULT 'PENDING'"
                     + ")");
 
-            // Let's make sure our main admin can always log in!
-            stmt.executeUpdate(
-                    "INSERT IGNORE INTO ACCOUNTS (username, password, role, linked_employee_id)"
-                            + " VALUES ('admin', '240be518fabd2724ddb6f04eeb1da5967448d7e831c08c8fa822809f74c720a9', 'ADMIN', NULL)");
+            widenAccountsPasswordColumn(stmt);
+
+            try (PreparedStatement ps = conn.prepareStatement(
+                    "INSERT IGNORE INTO ACCOUNTS (username, password, role, linked_employee_id) VALUES (?, ?, 'ADMIN', NULL)")) {
+                ps.setString(1, "admin");
+                ps.setString(2, SecurityUtils.hashPassword("admin123"));
+                ps.executeUpdate();
+            }
 
         } catch (SQLException e) {
-            throw new RuntimeException("Failed to initialise in-memory database: " + e.getMessage(), e);
+            throw new RuntimeException("Failed to initialise database: " + e.getMessage(), e);
+        }
+    }
+
+    /** Older installs used VARCHAR(100); BCrypt and migrations need more room. */
+    private static void widenAccountsPasswordColumn(Statement stmt) {
+        try {
+            stmt.executeUpdate("ALTER TABLE ACCOUNTS MODIFY COLUMN password VARCHAR(255) NOT NULL");
+        } catch (SQLException ignored) {
+            // Table may not exist yet on some paths, or already correct — safe to ignore.
         }
     }
 
     /**
-     * Opens and returns a JDBC connection to the shared in-memory database.
+     * Opens and returns a JDBC connection to the database.
      * Callers are responsible for closing it (use try-with-resources).
      */
     public static Connection getConnection() throws SQLException {

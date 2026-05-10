@@ -116,6 +116,60 @@ public class EmployeeRepository {
         }
     }
 
+    /**
+     * Decrements consolidated leave buckets (sick, then vacation, then emergency) and reduces loan balance.
+     * Intended to run inside a transaction with {@code employee_id} row locked {@code FOR UPDATE}.
+     */
+    public static void applyApprovedPayroll(
+            Connection conn, String employeeId, double leaveDays, double loanDeduction, boolean hasLeaveBenefits)
+            throws SQLException {
+        String sel = "SELECT sick_leave, vacation_leave, emergency_leave, loan_balance FROM EMPLOYEES"
+                + " WHERE UPPER(employee_id) = UPPER(?) FOR UPDATE";
+        int sick;
+        int vac;
+        int emg;
+        double loanBal;
+        try (PreparedStatement ps = conn.prepareStatement(sel)) {
+            ps.setString(1, employeeId);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (!rs.next()) {
+                    return;
+                }
+                sick = rs.getInt("sick_leave");
+                vac = rs.getInt("vacation_leave");
+                emg = rs.getInt("emergency_leave");
+                loanBal = rs.getDouble("loan_balance");
+            }
+        }
+
+        if (hasLeaveBenefits && leaveDays > 0) {
+            int toDeduct = (int) Math.ceil(leaveDays);
+            int totalAvail = sick + vac + emg;
+            toDeduct = Math.min(toDeduct, totalAvail);
+            int take = Math.min(toDeduct, sick);
+            sick -= take;
+            toDeduct -= take;
+            take = Math.min(toDeduct, vac);
+            vac -= take;
+            toDeduct -= take;
+            take = Math.min(toDeduct, emg);
+            emg -= take;
+        }
+
+        double newLoan = Math.max(0.0, loanBal - Math.max(0.0, loanDeduction));
+
+        String upd = "UPDATE EMPLOYEES SET sick_leave = ?, vacation_leave = ?, emergency_leave = ?, loan_balance = ?"
+                + " WHERE UPPER(employee_id) = UPPER(?)";
+        try (PreparedStatement ps = conn.prepareStatement(upd)) {
+            ps.setInt(1, sick);
+            ps.setInt(2, vac);
+            ps.setInt(3, emg);
+            ps.setDouble(4, newLoan);
+            ps.setString(5, employeeId);
+            ps.executeUpdate();
+        }
+    }
+
     // ---------------------------------------------------------------
     // Helper
     // ---------------------------------------------------------------

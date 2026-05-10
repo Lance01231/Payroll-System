@@ -9,7 +9,8 @@ import javax.swing.table.*;
  * AdminPanel provides the administrative dashboard interface for the Payroll System.
  * It features a dark-themed sidebar navigation and manages three primary views:
  * 1. Add Employee: Form for registering new employees with their details and credentials.
- * 2. View All Records: Tabular view of existing employees with management actions (refresh, delete, mock attendance).
+ * 2. View All Records: Tabular view of existing employees with management actions (refresh, delete; optional mock
+ * attendance when {@code -Dpayroll.debug=true}).
  * 3. Approvals: Interface for administrators to review, approve, or reject employee payroll submissions.
  */
 class AdminPanel extends JPanel {
@@ -60,6 +61,9 @@ class AdminPanel extends JPanel {
     };
     private final JTable apprTable = new JTable(approvalsModel);
 
+    private final JPanel approvalPreviewHolder = new JPanel(new BorderLayout());
+    private JLabel approvalPreviewPlaceholderLabel;
+
     AdminPanel(PayrollSystem frame, PayrollService service) {
         this.frame = frame;
         this.service = service;
@@ -95,6 +99,37 @@ class AdminPanel extends JPanel {
         for (SubmissionRepository.PayrollSubmission sub : service.getPendingSubmissions()) {
             approvalsModel.addRow(new Object[] {sub.id, sub.employeeId, sub.leaveDays, sub.otHours, sub.loans});
         }
+        updateApprovalPreview();
+    }
+
+    private void updateApprovalPreview() {
+        approvalPreviewHolder.removeAll();
+        int row = apprTable.getSelectedRow();
+        if (row < 0 || approvalsModel.getRowCount() == 0) {
+            approvalPreviewHolder.add(approvalPreviewPlaceholderLabel, BorderLayout.CENTER);
+            approvalPreviewHolder.revalidate();
+            approvalPreviewHolder.repaint();
+            return;
+        }
+        String empId = (String) approvalsModel.getValueAt(row, 1);
+        double leave = ((Number) approvalsModel.getValueAt(row, 2)).doubleValue();
+        double ot = ((Number) approvalsModel.getValueAt(row, 3)).doubleValue();
+        double loans = ((Number) approvalsModel.getValueAt(row, 4)).doubleValue();
+
+        service.computePayslipDetails(empId, leave, ot, loans)
+                .ifPresentOrElse(
+                        slip -> approvalPreviewHolder.add(
+                                PayslipPresentation.buildPayslipBody(slip, true), BorderLayout.CENTER),
+                        () -> {
+                            JLabel err = PayrollSystem.lbl(
+                                    "Could not compute payslip (employee missing or invalid data).",
+                                    PayrollSystem.F_BODY,
+                                    PayrollSystem.C_WARNING);
+                            err.setHorizontalAlignment(SwingConstants.CENTER);
+                            approvalPreviewHolder.add(err, BorderLayout.CENTER);
+                        });
+        approvalPreviewHolder.revalidate();
+        approvalPreviewHolder.repaint();
     }
 
     // --- Header / Top Navigation Bar ---
@@ -449,21 +484,23 @@ class AdminPanel extends JPanel {
             }
         });
 
-        JButton mockBtn = PayrollSystem.makeBtn("Mock Attendance", PayrollSystem.C_WARNING);
-        mockBtn.setToolTipText("Injects 15 days of perfect attendance for presentation purposes.");
-        mockBtn.addActionListener(e -> {
-            int row = table.getSelectedRow();
-            if (row < 0) return;
-            String empId = (String) tableModel.getValueAt(row, 0);
-            service.generateMockAttendance(empId);
-            JOptionPane.showMessageDialog(this, "Generated 15 days of attendance for " + empId);
-        });
-
         btnRow.add(refreshBtn);
         btnRow.add(Box.createHorizontalStrut(10));
         btnRow.add(delBtn);
-        btnRow.add(Box.createHorizontalStrut(10));
-        btnRow.add(mockBtn);
+
+        if (Boolean.getBoolean("payroll.debug")) {
+            JButton mockBtn = PayrollSystem.makeBtn("Mock Attendance", PayrollSystem.C_WARNING);
+            mockBtn.setToolTipText("Debug only: injects 15 days of sample attendance.");
+            mockBtn.addActionListener(e -> {
+                int row = table.getSelectedRow();
+                if (row < 0) return;
+                String empId = (String) tableModel.getValueAt(row, 0);
+                service.generateMockAttendance(empId);
+                JOptionPane.showMessageDialog(this, "Generated 15 days of attendance for " + empId);
+            });
+            btnRow.add(Box.createHorizontalStrut(10));
+            btnRow.add(mockBtn);
+        }
 
         panel.add(
                 PayrollSystem.lbl("All Employee Records", PayrollSystem.F_H2, PayrollSystem.C_TEXT),
@@ -496,6 +533,29 @@ class AdminPanel extends JPanel {
         scroll.setBorder(BorderFactory.createLineBorder(PayrollSystem.C_BORDER));
         scroll.getViewport().setBackground(PayrollSystem.C_SURFACE);
 
+        approvalPreviewHolder.setBackground(PayrollSystem.C_SURFACE);
+        approvalPreviewPlaceholderLabel = PayrollSystem.lbl(
+                "Select a pending submission to preview the computed payslip.",
+                PayrollSystem.F_BODY,
+                PayrollSystem.C_MUTED);
+        approvalPreviewPlaceholderLabel.setHorizontalAlignment(SwingConstants.CENTER);
+        approvalPreviewHolder.add(approvalPreviewPlaceholderLabel, BorderLayout.CENTER);
+
+        JScrollPane previewScroll = new JScrollPane(approvalPreviewHolder);
+        previewScroll.setBorder(BorderFactory.createLineBorder(PayrollSystem.C_BORDER));
+        previewScroll.getViewport().setBackground(PayrollSystem.C_SURFACE);
+
+        JSplitPane split = new JSplitPane(JSplitPane.VERTICAL_SPLIT, scroll, previewScroll);
+        split.setResizeWeight(0.35);
+        split.setDividerSize(6);
+
+        apprTable.getSelectionModel().addListSelectionListener(e -> {
+            if (e.getValueIsAdjusting()) {
+                return;
+            }
+            updateApprovalPreview();
+        });
+
         JPanel btnRow = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
         btnRow.setOpaque(false);
 
@@ -526,10 +586,20 @@ class AdminPanel extends JPanel {
         btnRow.add(Box.createHorizontalStrut(10));
         btnRow.add(rejectBtn);
 
-        panel.add(
+        JPanel headingWrap = new JPanel(new BorderLayout(0, 6));
+        headingWrap.setOpaque(false);
+        headingWrap.add(
                 PayrollSystem.lbl("Pending Payroll Submissions", PayrollSystem.F_H2, PayrollSystem.C_TEXT),
                 BorderLayout.NORTH);
-        panel.add(scroll, BorderLayout.CENTER);
+        headingWrap.add(
+                PayrollSystem.lbl(
+                        "Payslip preview uses attendance for this cutoff plus filed OT / leave / loan on the selected row.",
+                        PayrollSystem.F_SMALL,
+                        PayrollSystem.C_MUTED),
+                BorderLayout.SOUTH);
+
+        panel.add(headingWrap, BorderLayout.NORTH);
+        panel.add(split, BorderLayout.CENTER);
         panel.add(btnRow, BorderLayout.SOUTH);
         return panel;
     }

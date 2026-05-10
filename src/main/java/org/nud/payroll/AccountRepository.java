@@ -16,8 +16,9 @@ public class AccountRepository {
     // --- Our handy SQL queries kept in one place ---
     private static final String SQL_INSERT_ACCOUNT =
             "INSERT INTO ACCOUNTS (username, password, role, linked_employee_id) VALUES (?, ?, 'EMPLOYEE', ?)";
-    private static final String SQL_AUTH_ACCOUNT =
-            "SELECT role, linked_employee_id FROM ACCOUNTS WHERE username = ? AND password = ?";
+    private static final String SQL_SELECT_ACCOUNT_BY_USER =
+            "SELECT password, role, linked_employee_id FROM ACCOUNTS WHERE username = ?";
+    private static final String SQL_UPDATE_PASSWORD = "UPDATE ACCOUNTS SET password = ? WHERE username = ?";
     private static final String SQL_DELETE_ACCOUNT = "DELETE FROM ACCOUNTS WHERE linked_employee_id = ?";
 
     // --- Let's add some data! ---
@@ -51,23 +52,37 @@ public class AccountRepository {
      * @return an Optional containing the User if they logged in successfully, or empty if they didn't.
      */
     public static Optional<User> authenticate(String username, String password) {
-        String hashedPassword = SecurityUtils.hashPassword(password);
-
         try (Connection conn = DatabaseManager.getConnection();
-                PreparedStatement ps = conn.prepareStatement(SQL_AUTH_ACCOUNT)) {
+                PreparedStatement ps = conn.prepareStatement(SQL_SELECT_ACCOUNT_BY_USER)) {
             ps.setString(1, username);
-            ps.setString(2, hashedPassword);
             try (ResultSet rs = ps.executeQuery()) {
-                if (rs.next()) {
-                    User.Role role = User.Role.valueOf(rs.getString("role"));
-                    String linkedId = rs.getString("linked_employee_id"); // may be NULL
-                    return Optional.of(new User(username, hashedPassword, role, linkedId));
+                if (!rs.next()) {
+                    return Optional.empty();
                 }
+                String storedHash = rs.getString("password");
+                User.Role role = User.Role.valueOf(rs.getString("role"));
+                String linkedId = rs.getString("linked_employee_id"); // may be NULL
+                if (!SecurityUtils.verifyPassword(password, storedHash)) {
+                    return Optional.empty();
+                }
+                if (SecurityUtils.needsPasswordHashUpgrade(storedHash)) {
+                    String upgraded = SecurityUtils.hashPassword(password);
+                    updatePasswordHash(conn, username, upgraded);
+                    storedHash = upgraded;
+                }
+                return Optional.of(new User(username, storedHash, role, linkedId));
             }
         } catch (SQLException e) {
             throw new DatabaseOperationException("Uh oh, we had a problem checking those credentials.", e);
         }
-        return Optional.empty();
+    }
+
+    static void updatePasswordHash(Connection conn, String username, String newHash) throws SQLException {
+        try (PreparedStatement ps = conn.prepareStatement(SQL_UPDATE_PASSWORD)) {
+            ps.setString(1, newHash);
+            ps.setString(2, username);
+            ps.executeUpdate();
+        }
     }
 
     // --- Clean up time (Delete) ---
