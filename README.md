@@ -1,11 +1,13 @@
-# clone the project
-git clone https://github.com/jrsmDev/Payroll-System
-cd payroll-system
+## Requirements
 
-# compile
-mvn compile
+- **JDK 21**
+- **Apache Maven** (`mvn` on your PATH)
+- **MySQL** (local or remote; app connects via JDBC)
 
-# run with:
-mvn -q exec:java
-# or
-java -cp target/classes org.nud.payroll.PayrollSystem
+## Run from the project root
+
+Maven must be executed in the directory that contains **`pom.xml`** (not under `src/...`).
+
+```bash
+cd /path/to/payroll   # folder with pom.xml
+mvn compile exec:java
