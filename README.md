@@ -1,6 +1,6 @@
 ## Requirements
 
-- **JDK 21**
+- **JDK 21...**
 - **Apache Maven** (`mvn` on your PATH)
 - **MySQL** (local or remote; app connects via JDBC)
 
