@@ -4,7 +4,7 @@
   "search.exclude": { "**/target": true },
   "files.watcherExclude": { "**/target": true },
   "errorLens.enabledDiagnosticLevels": ["error", "warning"],
-  "chat.disableAIFeatures": true,
+  "chat.disableAIFeatures": false,
   "redhat.telemetry.enabled": false,
   "gitlens.telemetry.enabled": false,
   "files.trimTrailingWhitespace": true,
@@ -16,7 +16,7 @@
   "java.inlayHints.parameterNames.enabled": "all",
   "java.inlayHints.parameterTypes.enabled": true,
   "[java]": {
-    "editor.formatOnSave": true,
+    "editor.formatOnSave": false,
     "editor.formatOnPaste": true,
     "editor.insertSpaces": true,
     "editor.suggestSelection": "first",
