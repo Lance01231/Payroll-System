@@ -1,8 +1,26 @@
 package org.nud.payroll;
 
+import java.awt.CardLayout;
+import java.awt.Color;
+import java.awt.Cursor;
+import java.awt.Dimension;
+import java.awt.Font;
+
+import javax.swing.BorderFactory;
+import javax.swing.JButton;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JLayeredPane;
+import javax.swing.JPanel;
+import javax.swing.JPasswordField;
+import javax.swing.JPopupMenu;
+import javax.swing.JSeparator;
+import javax.swing.JTextField;
+import javax.swing.SwingUtilities;
+import javax.swing.UIManager;
+
 import com.formdev.flatlaf.FlatDarkLaf;
-import java.awt.*;
-import javax.swing.*;
+
 
 /**
  * Meet the PayrollSystem class! This is the main window (JFrame) of our app.
@@ -50,6 +68,7 @@ public class PayrollSystem extends JFrame {
     private final PayrollService service;
     private final AdminPanel adminPanel;
     private final EmployeePanel employeePanel;
+    private final JPopupMenu faqPopup = new JPopupMenu();
 
     public PayrollSystem(PayrollService svc) {
         super("ABC Company — Employee Payroll System");
@@ -69,22 +88,63 @@ public class PayrollSystem extends JFrame {
         root.add(employeePanel, CARD_EMPLOYEE);
 
         setContentPane(root);
+
+        setSimpleFAQ("Welcome!\n• Please log in to continue.\n• Contact Admin if you lack an ID.");
+
+        // --- Create the Floating FAQ Button ---
+        JButton faqBtn = new JButton("?");
+        faqBtn.setFont(new Font("Segoe UI", Font.BOLD, 18));
+        faqBtn.setBackground(C_PRIMARY); // Using your blue accent color
+        faqBtn.setForeground(Color.WHITE);
+        faqBtn.setFocusPainted(false);
+        faqBtn.setBorder(BorderFactory.createEmptyBorder());
+        faqBtn.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+
+        // Make it round-ish
+        faqBtn.setBounds(1120, 690, 45, 45);
+
+        // Create a popup menu to act as the FAQ window
+        faqPopup.setBorder(BorderFactory.createLineBorder(C_BORDER, 1));
+        faqPopup.setBackground(C_SURFACE);
+
+        // Set the INITIAL text for the login screen (NEW)
+        setSimpleFAQ("Welcome!\n• Please log in to continue.\n• Contact Admin if you lack an ID.");
+
+        // Popup the FAQ when the button is clicked
+        faqBtn.addActionListener(e -> {
+            faqPopup.show(faqBtn, -250, -120);
+        });
+
+        // Use the LayeredPane to make it "float" on top of everything
+        getLayeredPane().add(faqBtn, JLayeredPane.PALETTE_LAYER);
+
+        // Re-position the button if the window is resized
+        this.addComponentListener(new java.awt.event.ComponentAdapter() {
+            @Override
+            public void componentResized(java.awt.event.ComponentEvent e) {
+                faqBtn.setLocation(getWidth() - 80, getHeight() - 70);
+            }
+        });
     }
 
     // --- Handy methods to move between screens ---
     void goLogin() {
         employeePanel.clearSession();
         cardLayout.show(root, CARD_LOGIN);
+        setSimpleFAQ("Login Help:\n• Username is your Employee ID.\n• Report to Admin for any problems.");
     }
 
     void goAdmin() {
         adminPanel.refresh();
         cardLayout.show(root, CARD_ADMIN);
+        setSimpleFAQ("Admin Help:\n• Use 'Add Employee' to add staff.\n• Use 'Approvals' to see pending requests.");
     }
 
     void goEmployee(String employeeId) {
         employeePanel.load(employeeId);
         cardLayout.show(root, CARD_EMPLOYEE);
+        setSimpleFAQ(
+                "Employee Help:\n• Generate payslips in 'View Payslips'.\n• See attendance records in 'Timekeeping'.");
     }
 
     // --- UI Factory Helpers: These make building consistent UI elements a breeze! ---
@@ -183,6 +243,14 @@ public class PayrollSystem extends JFrame {
             return hour + minute / 60.0;
         }
         return null;
+    }
+
+    private void setSimpleFAQ(String text) {
+        faqPopup.removeAll();
+        // Use HTML to allow line breaks in a standard JLabel
+        JLabel label = new JLabel("<html><div style='padding:10px;'>" + text.replace("\n", "<br>") + "</div></html>");
+        label.setForeground(Color.WHITE); // Since you made the background white
+        faqPopup.add(label);
     }
 
     // --- The starting point of our application! ---
